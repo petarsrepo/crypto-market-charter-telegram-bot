@@ -85,6 +85,21 @@ bot.on('message', (msg) => {
     GetChart();
   }
 
+
+
+
+  //ADD SUPPORT FOR DAILY, HOURLY & MINUTE CHARTS
+  //use /coins/{id}/market_chart/range
+//Get historical market data include price, market cap, and 24h volume within a range of timestamp (granularity auto)
+// Data granularity is automatic (cannot be adjusted)
+// 1 day from query time = 5 minute interval data
+// 1 - 90 days from query time = hourly data
+// above 90 days from query time = daily data (00:00 UTC)
+
+
+
+
+
 //GET HELP
 
 if (msg.text == "/help" || msg.text == "/help@" + botuname) {
