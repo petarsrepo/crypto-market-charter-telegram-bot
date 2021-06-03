@@ -10,6 +10,7 @@ var nf = new Intl.NumberFormat();
 var fs = require('fs');
 const ChartJsImage = require('chartjs-to-image');
 const Chart = require('chart.js')
+const wojakPage = 'https://www.wojakindex.biz/';
 const wojakIndex = 'https://api.wojakindex.biz/current_wojak_index.json';
 const wojakImgs = 'https://api.wojakindex.biz/pink_wojaks.json';
 const wImageUrl = 'https://i.4cdn.org/biz/';
@@ -49,33 +50,36 @@ setTimeout(function(){
 //START MESSAGE LISTENER
 
 bot.on('message', (msg) => {
-  var NewMsg = "";
   csymbol = msg.text.substr(3);
 
 
   //COIN INTERACTION COMMAND VARS
   var cInfo = "/i ";
-  var cPrice = "/p ";
+  var cPrice = "/d ";
   var cWeek = "/w ";
   var cMonth = "/m ";
 
   if (msg.text.startsWith(cInfo)) {
+
     GetCoin();
     GetProjectInfo();
   }
 
   if (msg.text.startsWith(cPrice)) {
+
     GetCoin();
     GetPrice();
   }
 
   if (msg.text.startsWith(cWeek)) {
+
     chartURL = 'days=14&interval=daily';
     GetCoin();
     GetChart();
   }
 
   if (msg.text.startsWith(cMonth)) {
+
     chartURL = 'days=30&interval=daily';
     GetCoin();
     GetChart();
@@ -83,11 +87,11 @@ bot.on('message', (msg) => {
 
 //GET HELP
 
-if (msg.text == "/help") {
+if (msg.text == "/help" || msg.text == "/help@" + botuname) {
   bot.sendMessage(msg.chat.id,
     "I am a bot that provides cryptocurrency market information and basic charting service. Commands are not case sensitive and work with both ticker symbol and full coin name. Candlestick charting coming soon. Command list: \n" +
     "\n/i - Get coin information e.g. /c bitcoin" +
-    "\n/p - Get coin market data e.g. /p ethereum" +
+    "\n/d - Get coin market data e.g. /p ethereum" +
     "\n/w - Get 14-day market data chart e.g. /w bnb" +
     "\n/m - Get 31-day market data chart e.g. /m link" +
     "\n/hot - Get the Top 7 Trending Coins on CoinGecko" +
@@ -99,7 +103,7 @@ if (msg.text == "/help") {
 //GET WOJAK INDEX
 
 
-if (msg.text == "/wjk") {
+if (msg.text == "/wjk" || msg.text == "/wjk@" + botuname) {
   var w1;
   var w2;
   let wone = wojakIndex;
@@ -120,20 +124,28 @@ if (msg.text == "/wjk") {
     });
     var wojaks = w1.pink_wojaks;
     var wimages = w1.total_images;
-
+    var wshare = (wojaks / wimages).toFixed(2);
     var rindex = Math.floor(Math.random() * w2.length)
+    var wothreadID = w2[rindex].thread_id;
     var wjkfile = w2[rindex].filename;
     var url = wImageUrl + wjkfile;
-    if (windex >= 200) {
-      var reply = "Wojak Index now at: " + windex + "! I heard McDonald's are still hiring...";
+    var bizurl = 'boards.4chan.org/biz/thread/';
+    var wexstr = "Wojak Index now at: ";
+    if (windex >= 400) {
+      var reply = "Don't worry McDonald's is still hiring...";
     } else {
-      var reply = "Wojak Index is only: " + windex + "! Time to buy another shitcoin?";
+      var reply = "Panic levels are still within parameters.";
     }
     bot.sendPhoto(msg.chat.id, url, {
-      caption: reply
+      caption: wexstr + '*' + windex + ' (' + wshare + '%)*'+
+      '\n' + reply +
+      '\n' + '[Visit Wojak Thread](' + bizurl + wothreadID + ') | [Browse Wojak Index](' + wojakPage + ')' , parse_mode: 'Markdown'
+      // caption: '[' + reply + '](' +  + wthread + ')' + wojakPage , parse_mode: 'Markdown'
     });
     }))
     };
+
+
 
 //GET COIN
 
@@ -180,7 +192,7 @@ if (cfound) {
 
 //GET TOP TRENDING COINS
 
-if (msg.text == "/hot") {
+if (msg.text == "/hot" || msg.text == "/hot@" + botuname) {
 var pricebtc;
 var hotobj;
 let one = geckoAPI + '/simple/price?ids=bitcoin&vs_currencies=usd';
@@ -481,6 +493,7 @@ function GetChart(){
                     bot.sendMessage(msg.chat.id, 'Cannot find "' + msg.text.substr(4) + '" in the database.');
                   }
                 }
+
 
 
 
