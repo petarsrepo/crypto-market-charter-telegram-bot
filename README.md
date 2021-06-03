@@ -40,10 +40,10 @@ help - Get help on how to use my services
 
 **CHAT COMMANDS**
 
-/i - Get coin information e.g. /c bitcoin
-/p - Get coin market data e.g. /p ethereum
-/w - Get 14-day market data chart e.g. /w bnb
-/m - Get 31-day market data chart e.g. /m link
-/hot - Get the Top 7 Trending Coins on CoinGecko
-/wjk - Get key metrics about the Wojak Index
-/help - Get help on how to use my services
+/i - Get coin information e.g. /c bitcoin  
+/p - Get coin market data e.g. /p ethereum  
+/w - Get 14-day market data chart e.g. /w bnb  
+/m - Get 31-day market data chart e.g. /m link  
+/hot - Get the Top 7 Trending Coins on CoinGecko  
+/wjk - Get key metrics about the Wojak Index  
+/help - Get help on how to use my services  
