@@ -36,7 +36,7 @@ w - Get 14-day market data chart e.g. /w bnb
 m - Get 31-day market data chart e.g. /m link  
 hot - Get the Top 7 Trending Coins on CoinGecko  
 wjk - Get key metrics about the Wojak Index  
-help - Get help on how to use my services  
+help - Get help on how to use the bot's services  
 
 **CHAT COMMANDS**
 
@@ -46,4 +46,4 @@ help - Get help on how to use my services
 /m - Get 31-day market data chart e.g. /m link  
 /hot - Get the Top 7 Trending Coins on CoinGecko  
 /wjk - Get key metrics about the Wojak Index  
-/help - Get help on how to use my services  
+/help - Get help on how to use the bot's services  
