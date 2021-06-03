@@ -13,7 +13,7 @@ const Chart = require('chart.js')
 const wojakIndex = 'https://api.wojakindex.biz/current_wojak_index.json';
 const wojakImgs = 'https://api.wojakindex.biz/pink_wojaks.json';
 const wImageUrl = 'https://i.4cdn.org/biz/';
-//const ChartFinancial = require('chartjs-chart-financial')
+//const ChartFinancial = require('chartjs-chart-financial') COMING SOON
 
 var cid;
 var csymbol;
@@ -21,8 +21,6 @@ var coinsList;
 var cprice;
 var tdata;
 var imgfile;
-var chartWk = false;
-var chartMt = false;
 var chartURL;
 
 bot.getMe().then(function (me) {
@@ -101,46 +99,41 @@ if (msg.text == "/help") {
 //GET WOJAK INDEX
 
 
-
-
 if (msg.text == "/wjk") {
-var w1;
-var w2;
-
+  var w1;
+  var w2;
   let wone = wojakIndex;
   let wtwo = wojakImgs;
   const wojOne = axios.get(wone);
   const wojTwo = axios.get(wtwo);
-
   axios.all([wojOne, wojTwo])
     .then(axios.spread((...responses) => {
-
   const wojakobj = responses[0];
-
   const wimageobj = responses[1];
-
-
     w1 = wojakobj.data;
-  w2 = wimageobj.data;
-
-
-
+    w2 = wimageobj.data;
     var wdate = new Date(w1.instant_ms).toLocaleDateString("en-US");
     var wtime = new Date (w1.instant_ms).toLocaleTimeString("en-US");
-    var windex = Math.round((w1.pink_wojak_index + Number.EPSILON) * 100) / 100;
+    var windex = w1.pink_wojak_index.toLocaleString('en-US', {
+    notation: 'compact',
+    compactDisplay: 'short',
+    });
     var wojaks = w1.pink_wojaks;
     var wimages = w1.total_images;
 
-
-
     var rindex = Math.floor(Math.random() * w2.length)
-    var filename = w2[rindex].filename;
-    var url = wImageUrl + filename;
-    bot.sendPhoto(msg.chat.id, url)
+    var wjkfile = w2[rindex].filename;
+    var url = wImageUrl + wjkfile;
+    if (windex >= 200) {
+      var reply = "Wojak Index now at: " + windex + "! I heard McDonald's are still hiring...";
+    } else {
+      var reply = "Wojak Index is only: " + windex + "! Time to buy another shitcoin?";
+    }
+    bot.sendPhoto(msg.chat.id, url, {
+      caption: reply
+    });
     }))
     };
-
-
 
 //GET COIN
 
@@ -465,7 +458,7 @@ function GetChart(){
                      //RENDER CHART AND SEND TO CHAT
 
                     myChart.toFile('mychart.png');
-                    bot.sendMessage(msg.chat.id, "Hang on, rendering chart...");
+                    bot.sendMessage(msg.chat.id, "Attempting to render chart...");
                     setTimeout(function () {
                     bot.sendPhoto(msg.chat.id, 'mychart.png');
                     }, 2500);
@@ -492,7 +485,6 @@ function GetChart(){
 
 
                       // //CANDLECHART COMING WHEN https://github.com/chartjs/chartjs-chart-financial IS RELEASED
-
 
 
   });
