@@ -7,6 +7,9 @@ This is a bot that provides cryptocurrency market information and basic charting
 1) Node.js
 2) Telegram bot from @BotFather
 
+**OPEN TESTING**
+Start a chat with @MarketCharterBot directly or add it to a channel.
+
 **INSTALLATION**
 
 1) Download all files
