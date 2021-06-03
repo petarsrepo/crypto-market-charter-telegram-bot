@@ -1,6 +1,6 @@
 # crypto-market-charter-telegram-bot
  
-Parses CoinGecko crypto market data in rich formats and charts.
+This is a bot that provides cryptocurrency market information and basic charting services. It also comes with built-in meme functionalities and Wojak Index integration. Candle charts coming soon...
 
 **REQUIREMENTS**
 
