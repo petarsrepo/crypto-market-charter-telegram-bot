@@ -1,6 +1,6 @@
 # crypto-market-charter-telegram-bot
  
-Links two Telegram groups and relays messages between the two as if one single group. Will display user name and group name in the message.
+Parses CoinGecko crypto market data in rich formats and charts.
 
 **REQUIREMENTS**
 
