@@ -4,6 +4,7 @@
     "chart.js": "^3.3.2",
     "chartjs-to-image": "^1.0.4",
     "fs-extra": "^10.0.0",
+    "mathjs": "^9.4.2",
     "node-telegram-bot-api": "^0.53.0"
   }
 }
