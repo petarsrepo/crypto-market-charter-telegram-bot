@@ -998,7 +998,6 @@ function GetChart(){
                          }
                        }
                      });
-                    // }
 
                      //RENDER CHART AND SEND TO CHAT
 
@@ -1154,7 +1153,6 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 0,
                                            fill: '+1',
-                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(200, 0, 0, 0)',
@@ -1172,7 +1170,6 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 0,
                                            fill: '-1',
-                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(0, 200, 0, 0)',
