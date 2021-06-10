@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const token = 'YOUR BOT TOKEN HERE';
 const bot = new TelegramBot(token, {interval: 100, timeout: 20, polling: true});
+const botuname = 'YOUR BOT USERNAME IN LOWERCASE';
 bot.on("polling_error", console.log);
 const geckoAPI = 'https://api.coingecko.com/api/v3';
 const geckoWEB = 'https://www.coingecko.com/en/coins/';
@@ -18,7 +19,7 @@ const bizThread = 'http://boards.4chan.org/biz/thread/';
 const bizAPI = 'https://a.4cdn.org/biz/threads.json';
 const threadAPI = 'https://a.4cdn.org/biz/thread/';
 const math = require('mathjs');
-const CoverCommands = ['media/global.gif', 'media/defi.gif', 'media/help.gif', 'media/hot.gif', 'media/about.gif'];
+const coverCommands = ['media/global.gif', 'media/defi.gif', 'media/help.gif', 'media/hot.gif', 'media/about.gif'];
 const coverBog = ['media/bog1.gif', 'media/bog2.gif', 'media/bog3.gif', 'media/bog4.gif', 'media/bog5.gif'];
 
 //KEY TIMEFRAMES IN UNIX
@@ -43,9 +44,8 @@ var xHrsDays = false; //DISPLAY HOURS & DAYS
 var xDays = false; //DISPLAYS DAYS
 
 
-bot.getMe().then(function (me) {
-    botuname = me.username;
-});
+
+console.log(botuname);
 
 
 //GET COINS LIST
@@ -319,11 +319,10 @@ bot.on('message', (msg) => {
     GetCandleChart();
   }
 
-
 //ABOUT
 if (uniMsg == "/about" || uniMsg == "/about@" + botuname) {
   bot.sendChatAction(msg.chat.id, 'typing');
-  bot.sendAnimation(msg.chat.id, CoverCommands[4], {caption: '*This bot is developed by:* [STKDevworks](https://github.com/STKDevworks)' +
+  bot.sendAnimation(msg.chat.id, coverCommands[4], {caption: '*This bot is developed by:* [STKDevworks](https://github.com/STKDevworks)' +
     '\n\nAvailable free-of-charge and not meant for commercial use. Modifications and self-hosting available with attribution. Image copyright belongs to their respective owners.' +
     '\n\nSupport by spreading the word, or donating:' +
     '\n\nBTC: `bc1qmzpk2lu4n8uq6peyqz2shuk09567vg5xmf6hka`' + '\n\n ETH/ERC-20: `0x2B306bFA3Ba2ECd43303D2D88EF5406C34459077`',
@@ -335,7 +334,7 @@ if (uniMsg == "/about" || uniMsg == "/about@" + botuname) {
 
 if (uniMsg == "/help" || uniMsg == "/help@" + botuname) {
   bot.sendChatAction(msg.chat.id, 'typing');
-  bot.sendAnimation(msg.chat.id, CoverCommands[2], {caption :
+  bot.sendAnimation(msg.chat.id, coverCommands[2], {caption :
     "\n/i - `Get coin information e.g. /c btc`" +
     "\n/d - `Get coin market data e.g. /p ethereum`" +
     "\n/mn | /mh | /mt | /md | /mw | /mf - `Get price & volume chart at various time scales`" +
@@ -554,17 +553,17 @@ for (var i = 0; i < 5; i++) {
       if (thrselect[selindex] == threadobj.posts[i].no) {
         thrsrchindex = i;
       }
-    }
+    } console.log(threadurl)
+    var thdbdy = threadobj.posts[thrsrchindex].com.replace(/<[^>]*?/gm, '').substr(0, 500);
     thrimgurl = wImageUrl + threadobj.posts[thrsrchindex].tim + threadobj.posts[thrsrchindex].ext;
     bot.sendChatAction(msg.chat.id, 'typing');
-    bot.sendPhoto(msg.chat.id, thrimgurl, { caption: '*' + threadobj.posts[thrsrchindex].sub + ':' + '*' +
-    '\n' + threadobj.posts[thrsrchindex].com.replace(/<[^>]*>?/gm, '').substr(0, 500) + '...' +
+    bot.sendPhoto(msg.chat.id, thrimgurl, { caption: ' * ' + '' + threadobj.posts[thrsrchindex].sub + '' + ' * ' +
+    '\n' + thdbdy + ' ... ' +
     '\n' +
-    '\n*' + threadobj.posts[thrsrchindex].replies + '* replies / *' + threadobj.posts[thrsrchindex].unique_ips + '* IDs: ' +
-    '\n[Read Full Story on /biz/](' + threadurl + ')' , parse_mode: 'Markdown' });
+    '\n * ' + threadobj.posts[thrsrchindex].replies + ' * replies from * ' + threadobj.posts[thrsrchindex].unique_ips + '* IDs: ' +
+    '\n[Read Full Story on /biz/]' + '(' + threadurl + ')' , parse_mode: 'Markdown' });
   })
   })
-
 };
 
 
@@ -626,7 +625,7 @@ axios.get(geckoAPI + '/global')
   var tvol = respobj.data.total_volume.usd.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
   var btcdom = respobj.data.market_cap_percentage.btc.toFixed(2);
   bot.sendChatAction(msg.chat.id, 'typing');
-  bot.sendAnimation(msg.chat.id, CoverCommands[0], { caption: '*Global Market Data - Crypto:*' +
+  bot.sendAnimation(msg.chat.id, coverCommands[0], { caption: '*Global Market Data - Crypto:*' +
   '\n*Total Coins:* ' + totalcoins +
   '\n*Upcoming ICOs:* ' + upcico +
   '\n*Ongoing ICOs:* ' + ongico +
@@ -650,7 +649,7 @@ if (uniMsg == "/defi" || uniMsg == "/defi@" + botuname) {
     var defitop = respobj.data.top_coin_name;
     var defitopdom = Number(respobj.data.top_coin_defi_dominance).toFixed(2);
     bot.sendChatAction(msg.chat.id, 'typing');
-    bot.sendAnimation(msg.chat.id, CoverCommands[1], { caption: '*Global Market Data - DeFi:*' +
+    bot.sendAnimation(msg.chat.id, coverCommands[1], { caption: '*Global Market Data - DeFi:*' +
     '\n*DeFi Market Cap:* ' + defimcap +
     '\n*ETH Market Cap:* ' + ethmcap +
     '\n*DeFi to ETH:* ' + defieth + '%' +
@@ -737,7 +736,7 @@ for (var i = 0; i < hotobj.coins.length; i++) {
   entry[i] = "#" + market_cap_rank[i] + " | [" + name[i] + "](" + geckoWEB + id[i] + ") (" + symbol[i] + "): $" + price[i], {parse_mode: 'Markdown'};
 }
 bot.sendChatAction(msg.chat.id, 'typing');
-bot.sendAnimation(msg.chat.id, CoverCommands[3], { caption: "[Top-7 Trending Coins on CoinGecko (24h):](" + geckoHOT + ")\n" + entry.join('\n'), parse_mode: 'Markdown'});
+bot.sendAnimation(msg.chat.id, coverCommands[3], { caption: "[Top-7 Trending Coins on CoinGecko (24h):](" + geckoHOT + ")\n" + entry.join('\n'), parse_mode: 'Markdown'});
 
 }));
 };
@@ -999,6 +998,7 @@ function GetChart(){
                          }
                        }
                      });
+                    // }
 
                      //RENDER CHART AND SEND TO CHAT
 
@@ -1047,6 +1047,7 @@ function GetChart(){
                                   var lowval = [];
                                   var openval = [];
                                   var closeval = [];
+                                  var avgcan = [];
 
                                   for (var i = 0; i < priceobj.length - 1; i++) {
                                     tval[i] = new Date(priceobj[i][0]).toLocaleTimeString('en-US' , { hour: '2-digit' });
@@ -1080,6 +1081,8 @@ function GetChart(){
                                       bolu[i] = typprice[i] + 2 * stddevval[i];
                                       bolb[i] = typprice[i] - 2* stddevval[i];
 
+                                      avgcan[i] = (openval[i] + closeval[i]) / 2;
+
                                     //SET CHART CONFIG
 
                                      var myChart = new ChartJsImage();
@@ -1098,7 +1101,7 @@ function GetChart(){
                                            notation: 'compact',
                                            compactDisplay: 'short',
                                          }) + "     ",
-                                           data: closeval,
+                                           data: avgcan,
                                            pointRadius: 0,
                                            pointStyle: 'line',
                                            stepped: true,
@@ -1125,7 +1128,6 @@ function GetChart(){
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(200, 0, 200, 1)',
                                            backgroundColor: 'rgba(200, 0, 200, 0.1)',
-
                                            yAxisID: 'y-axis-1',
                                            tension: 0.1,
                                          },{
@@ -1158,7 +1160,6 @@ function GetChart(){
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(200, 0, 0, 0)',
                                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-
                                            yAxisID: 'y-axis-1',
                                            tension: 10,
                                          },{
@@ -1177,6 +1178,7 @@ function GetChart(){
                                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
                                            yAxisID: 'y-axis-1',
                                            tension: 10,
+                                         },{
                                          }]
                                        }, options: {
 
@@ -1224,12 +1226,13 @@ function GetChart(){
                                              bounds: 'ticks',
                                              position: 'bottom',
                                              padding: 5,
+                                                 stacked: true,
                                              beginAtZero: false,
                                              grid: {
-                                               offset: true,
+                                               offset: false,
                                              },
                                              gridLines: {
-                                               offset: true,
+                                               offset: false,
                                              },
                                            }],
                                            yAxes: [{
@@ -1257,17 +1260,18 @@ function GetChart(){
                                             }
                                           },{
                                           id: 'y-axis-2',
-                                          bounds: 'ticks',
-                                          type: 'category',
+                                          bounds: 'data',
+                                          type: 'logarithmic',
+                                          stacked: true,
                                           position: 'right',
                                           padding: 5,
                                           beginAtZero: false,
                                           display: false,
                                           grid: {
-                                           offset: true,
+                                           offset: false,
                                          },
                                           gridLines: {
-                                           offset: true,
+                                           offset: false,
                                          }}]
                                          }
                                        }
@@ -1302,9 +1306,5 @@ function GetChart(){
                                     bot.sendMessage(msg.chat.id, 'Cannot find "' + msg.text.substr(4) + '" in the database.');
                                   }
                                 }
-
-
-                      // //CANDLECHART COMING WHEN https://github.com/chartjs/chartjs-chart-financial IS RELEASED
-
 
   });
