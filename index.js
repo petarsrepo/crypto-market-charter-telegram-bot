@@ -319,6 +319,7 @@ bot.on('message', (msg) => {
     GetCandleChart();
   }
 
+
 //ABOUT
 if (uniMsg == "/about" || uniMsg == "/about@" + botuname) {
   bot.sendChatAction(msg.chat.id, 'typing');
