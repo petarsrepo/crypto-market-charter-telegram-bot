@@ -1,7 +1,8 @@
 const TelegramBot = require('node-telegram-bot-api');
-const token = 'YOUR BOT TOKEN HERE';
+require('dotenv').config();
+const token = process.env.TELEGRAM_BOT_TOKEN
 const bot = new TelegramBot(token, {interval: 100, timeout: 20, polling: true});
-const botuname = 'YOUR BOT USERNAME IN LOWERCASE';
+const botuname = 'mktchrtdevbot';
 bot.on("polling_error", console.log);
 const geckoAPI = 'https://api.coingecko.com/api/v3';
 const geckoWEB = 'https://www.coingecko.com/en/coins/';
@@ -86,6 +87,9 @@ bot.on('message', (msg) => {
   var cpDay = "/pd ";//1d int 14d
   var cpWks = "/pw ";//7d int 3mmt
   var cpHmt = "/pf ";//14d int 180d
+  var cpMonth = "/pm ";
+  var cpQrt = "/pq ";
+  var cpYear = "/py ";
 
   if (uniMsg.startsWith(cInfo)) {
     csymbol = uniMsg.substr(3);
@@ -299,7 +303,7 @@ bot.on('message', (msg) => {
     GetCandleChart();
   }
 
-  if (uniMsg.startsWith(cpWks)) {
+  if (uniMsg.startsWith(cpQrt)) {
     csymbol = uniMsg.substr(4);
     chartURL = 'days=180';
     xHrs = false;
@@ -308,7 +312,7 @@ bot.on('message', (msg) => {
     cptimeframe = '180 Days';
     GetCoin();
     GetCandleChart();
-  } else if (uniMsg == cpWks.substr(0,3)) {
+  } else if (uniMsg == cpQrt.substr(0,3)) {
     csymbol = 'link';
     chartURL = 'days=180';
     xHrs = false;
@@ -318,6 +322,67 @@ bot.on('message', (msg) => {
     GetCoin();
     GetCandleChart();
   }
+
+  if (uniMsg.startsWith(cpWks)) {
+    csymbol = uniMsg.substr(4);
+    chartURL = 'days=7';
+    xHrs = false;
+    xHrsDays = true;
+    xDays = false;
+    cptimeframe = '7 Days';
+    GetCoin();
+    GetCandleChart();
+  } else if (uniMsg == cpWks.substr(0,3)) {
+    csymbol = 'link';
+    chartURL = 'days=7';
+    xHrs = false;
+    xHrsDays = false;
+    xDays = true;
+    cptimeframe = '7 Days';
+    GetCoin();
+    GetCandleChart();
+  }
+
+  if (uniMsg.startsWith(cpMonth)) {
+    csymbol = uniMsg.substr(4);
+    chartURL = 'days=30';
+    xHrs = false;
+    xHrsDays = false;
+    xDays = true;
+    cptimeframe = '30 Days';
+    GetCoin();
+    GetCandleChart();
+  } else if (uniMsg == cpMonth.substr(0,3)) {
+    csymbol = 'link';
+    chartURL = 'days=30';
+    xHrs = false;
+    xHrsDays = false;
+    xDays = true;
+    cptimeframe = '30 Days';
+    GetCoin();
+    GetCandleChart();
+  }
+
+  if (uniMsg.startsWith(cpYear)) {
+    csymbol = uniMsg.substr(4);
+    cptimeframe = '1 Year'
+    xHrs = false;
+    xHrsDays = false;
+    xDays = true;
+    chartURL = 'days=365';
+    GetCoin();
+    GetCandleChart();
+  } else if (uniMsg == cpYear.substr(0,3)) {
+    csymbol = 'link';
+    chartURL = 'days=365';
+    xHrs = false;
+    xHrsDays = false;
+    xDays = true;
+    cptimeframe = '1 Year'
+    GetCoin();
+    GetCandleChart();
+  }
+
 
 //ABOUT
 if (uniMsg == "/about" || uniMsg == "/about@" + botuname) {
@@ -564,6 +629,7 @@ for (var i = 0; i < 5; i++) {
     '\n[Read Full Story on /biz/]' + '(' + threadurl + ')' , parse_mode: 'Markdown' });
   })
   })
+
 };
 
 
@@ -892,7 +958,6 @@ function GetChart(){
                            fill: true,
                            order: 1,
                            grouped: false,
-                           //minBarLength: 100,
                            yAxisID: 'y-axis-1',
                            barThickness: 'flex',
                            categoryPercentage: 1,
@@ -1047,7 +1112,15 @@ function GetChart(){
                                   var lowval = [];
                                   var openval = [];
                                   var closeval = [];
+                                  var uptick = [];
+                                  var bottick = [];
+                                  var upsup = [];
+                                  var botsup = [];
                                   var avgcan = [];
+                                  var amplitude = [];
+                                  var absavg = [];
+                                  var highavg = [];
+                                  var lowavg = [];
 
                                   for (var i = 0; i < priceobj.length - 1; i++) {
                                     tval[i] = new Date(priceobj[i][0]).toLocaleTimeString('en-US' , { hour: '2-digit' });
@@ -1064,15 +1137,19 @@ function GetChart(){
                                     openval[i] = priceobj[i][1];
                                     closeval[i] = priceobj[i][4];
 
+
+
+
+
                                     if (i - Math.round((priceobj.length - 1) * tmamp) >= 0) {
                                       nmaval[i] = (priceobj[i - Math.round((priceobj.length - 1) * tmamp)][2] + priceobj[i - Math.round((priceobj.length - 1) * tmamp)][3] + priceobj[i - Math.round((priceobj.length - 1) * tmamp)][4]) / 3;
                                     } else {
-                                      nmaval[i] = (priceobj[i][2] + priceobj[i][3] + priceobj[i][4]) / 3;
+                                      nmaval[i] = ((priceobj[i][2] + priceobj[i][3] + priceobj[i][4]) + math.std(priceobj[i][2], priceobj[i][3], priceobj[i][4]) * tmamp) / 3;
                                     }
                                     if (i - Math.round((priceobj.length - 1) * fmamp) >= 0) {
                                       pmaval[i] = (priceobj[i - Math.round((priceobj.length - 1) * fmamp)][2] + priceobj[i - Math.round((priceobj.length - 1) * fmamp)][3] + priceobj[i - Math.round((priceobj.length - 1) * fmamp)][4]) / 3;
                                     } else {
-                                      pmaval[i] = (priceobj[i][2] + priceobj[i][3] + priceobj[i][4]) / 3;
+                                      pmaval[i] = ((priceobj[i][2] + priceobj[i][3] + priceobj[i][4]) - math.std(priceobj[i][2], priceobj[i][3], priceobj[i][4]) * fmamp) / 3;
                                     }
 
                                       //BOLLINGER BANDS
@@ -1082,6 +1159,13 @@ function GetChart(){
                                       bolb[i] = typprice[i] - 2* stddevval[i];
 
                                       avgcan[i] = (openval[i] + closeval[i]) / 2;
+                                      uptick[i] = highval[i] - avgcan[i];
+                                      amplitude[i] = highval[i] - lowval[i];
+                                      bottick[i] = avgcan[i] - lowval[i];
+                                       absavg[i] = math.std(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]);
+                                       lowavg[i] = absavg[i] - Math.min(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]);
+                                       highavg[i] = Math.max(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]) - absavg[i];
+                                       console.log('avg:' + absavg[i] + 'l:' + lowavg[i] + 'h:' + highavg[i]);
 
                                     //SET CHART CONFIG
 
@@ -1158,8 +1242,9 @@ function GetChart(){
                                            fill: '+1',
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
-                                           borderColor: 'rgba(200, 0, 0, 0)',
-                                           backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                           borderColor: 'rgba(0, 0, 200, 0.1)',
+                                           backgroundColor: 'rgba(0, 0, 200, 0.1)',
+
                                            yAxisID: 'y-axis-1',
                                            tension: 10,
                                          },{
@@ -1174,11 +1259,70 @@ function GetChart(){
                                            fill: '-1',
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
-                                           borderColor: 'rgba(0, 200, 0, 0)',
-                                           backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                           borderColor: 'rgba(0, 0, 200, 0)',
+                                           backgroundColor: 'rgba(0, 0, 200, 0.1)',
                                            yAxisID: 'y-axis-1',
-                                           tension: 10,
+                                           tension: 0,
                                          },{
+                                           id: 'topWicksSup',
+                                           label: ' TWS ',
+                                           type: 'bar',
+                                           display: false,
+                                           data: absavg ,
+                                           borderWidth: 3,
+                                           borderColor: 'rgba(155, 0 , 0, 0.2)',
+                                           backgroundColor: 'rgba(155, 0, 0, 0.2)',
+                                           grouped: false,
+                                           yAxisID: 'y-axis-2',
+                                           xAxisID: 'x-axis-1',
+                                         },{
+                                           id: 'topWicks',
+                                           label: ' TW ',
+                                           display: false,
+                                           type: 'bar',
+                                           showLine: false,
+                                           data:  highavg,
+                                           pointRadius: 3,
+                                           pointStyle: 'line',
+                                           borderWidth: 3,
+                                           borderJoinStyle: 'round',
+                                           borderCapStyle: 'cap',
+                                           borderColor: 'rgba(155, 100, 0, 0.2)',
+                                           backgroundColor: 'rgba(155, 100, 0, 0.2)',
+                                           grouped: false,
+                                           yAxisID: 'y-axis-2',
+                                           xAxisID: 'x-axis-1',
+                                           tension: 0.1,
+                                         },{
+                                           id: 'botWickSup',
+                                           label: ' BWS ',
+                                           type: 'bar',
+                                           display: false,
+                                           data: absavg,
+                                           borderWidth: 3,
+                                           borderColor: 'rgba(100, 155, 0, 0.2)',
+                                           backgroundColor: 'rgba(100, 155, 0, 0.2)',
+                                           grouped: true,
+                                           yAxisID: 'y-axis-2',
+                                           xAxisID: 'x-axis-1',
+                                         },{
+                                           id: 'botWick',
+                                           label: ' BW ',
+                                           display: false,
+                                           type: 'bar',
+                                           showLine: false,
+                                           data: lowavg ,
+                                           pointRadius: 3,
+                                           pointStyle: 'line',
+                                           borderWidth: 3,
+                                           borderJoinStyle: 'round',
+                                           borderCapStyle: 'cap',
+                                           borderColor: 'rgba(0, 155, 0, 0.2)',
+                                           backgroundColor: 'rgba(0, 155, 0, 0.2)',
+                                           grouped: true,
+                                           yAxisID: 'y-axis-2',
+                                           xAxisID: 'x-axis-1',
+                                           tension: 0.1,
                                          }]
                                        }, options: {
 
@@ -1234,6 +1378,24 @@ function GetChart(){
                                              gridLines: {
                                                offset: false,
                                              },
+                                           },{
+                                             id: 'x-axis-2',
+                                             ticks: {
+                                               autoSkip: true,
+                                               maxTicksLimit: 16,
+                                             },
+                                             display: false,
+                                             type: 'category',
+                                             bounds: 'ticks',
+                                             position: 'bottom',
+                                             padding: 5,
+                                             beginAtZero: false,
+                                             grid: {
+                                               offset: false,
+                                             },
+                                             gridLines: {
+                                               offset: false,
+                                             },
                                            }],
                                            yAxes: [{
                                              ticks: {
@@ -1272,7 +1434,21 @@ function GetChart(){
                                          },
                                           gridLines: {
                                            offset: false,
-                                         }}]
+                                         }},{
+                                         id: 'y-axis-3',
+                                         bounds: 'data',
+                                         type: 'logarithmic',
+                                         stacked: true,
+                                         position: 'right',
+                                         padding: 5,
+                                         beginAtZero: false,
+                                         display: false,
+                                         grid: {
+                                          offset: false,
+                                        },
+                                         gridLines: {
+                                          offset: false,
+                                        }}]
                                          }
                                        }
                                      });
