@@ -33,20 +33,46 @@ Start a chat with @MarketCharterBot directly or add it to a channel.
 4) Click Edit Bot
 5) Click Edit Commands
 6) Input the list below as one message and hit enter:
+help - Get help on how to use my services
 i - Get coin information e.g. /c bitcoin  
-p - Get coin market data e.g. /p ethereum  
-w - Get 14-day market data chart e.g. /w bnb  
-m - Get 31-day market data chart e.g. /m link  
+d - Get coin market data e.g. /p ethereum  
+mn  - Get price & volume chart at minute interval  
+mh - Get price & volume chart at hour interval   
+mt - Get price & volume chart at twelve hour interval  
+md - Get price & volume chart at day interval  
+mw - Get price & volume chart at week interval  
+mf - Get price & volume chart at fortnight interval  
+ph - Get price chart with indicators at hour interval  
+pd  - Get price chart with indicators at day interval  
+pw - Get price chart with indicators at weekly interval  
+pf - Get price chart with indicators at fortnight interval  
 hot - Get the Top 7 Trending Coins on CoinGecko  
+crypto - Get global crypto market data  
+defi - Get global DeFi market data  
 wjk - Get key metrics about the Wojak Index  
-help - Get help on how to use the bot's services  
+biz - Get a random popular thread on /biz/  
+quote - Get a random crypto quote  
+about - Get developer and licensing info  
 
 **CHAT COMMANDS**
 
+/help - Get help on how to use my services  
 /i - Get coin information e.g. /c bitcoin  
-/p - Get coin market data e.g. /p ethereum  
-/w - Get 14-day market data chart e.g. /w bnb  
-/m - Get 31-day market data chart e.g. /m link  
+/d - Get coin market data e.g. /p ethereum  
+/mn  - Get price & volume chart at minute interval  
+/mh - Get price & volume chart at hour interval  
+/mt - Get price & volume chart at twelve hour interval  
+/md - Get price & volume chart at day interval  
+/mw - Get price & volume chart at week interval  
+/mf - Get price & volume chart at fortnight interval  
+/ph - Get price chart with indicators at hour interval  
+/pd  - Get price chart with indicators at day interval  
+/pw - Get price chart with indicators at weekly interval  
+/pf - Get price chart with indicators at fortnight interval  
 /hot - Get the Top 7 Trending Coins on CoinGecko  
+/crypto - Get global crypto market data  
+/defi - Get global DeFi market data  
 /wjk - Get key metrics about the Wojak Index  
-/help - Get help on how to use the bot's services  
+/biz - Get a random popular thread on /biz/  
+/quote - Get a random crypto quote  
+/about - Get developer and licensing info  
