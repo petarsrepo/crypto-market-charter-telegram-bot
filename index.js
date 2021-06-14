@@ -623,6 +623,7 @@ if (uniMsg == "/help" || uniMsg == "/help@" + botuname) {
     "\n/p - `Get coin market data e.g. /p ethereum`" +
     "\n/ph | /pd | /pw | /pm | /pq | /ps | /py - `Get price & volume chart at various time scales`" +
     "\n/id | /iw | /if | /im | /iq | /is | /iy - `Get price chart with indicators at various time scales`" +
+    "\n/top - `Get the Top 25 Coins by Marketcap`" +
     "\n/hot - `Get the Top 7 Trending Coins`" +
     "\n/crypto - `Get global crypto market data`" +
     "\n/defi - `Get global DeFi market data`" +
@@ -994,6 +995,48 @@ bot.sendAnimation(msg.chat.id, coverCommands[3], { caption: "[Top-7 Trending Coi
 
 }));
 };
+
+
+//GET TOP 24 HOUR TOP 25
+if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
+  axios.get(geckoAPI + '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&sparkline=false')
+  .then (function (response) {
+    var respobj = response.data;
+    var smb = [];
+    var prc = [];
+    var prh = [];
+    var prl = [];
+    var prcc = [];
+    var prcp = [];
+    var toptext = [];
+    var chg = [];
+    var chgcmt;
+    for (var i = 0; i < respobj.length; i++) {
+      // console.log(respobj[i]);
+      smb[i] = respobj[i].symbol.toUpperCase();
+      prc[i] = respobj[i].current_price.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
+      prh[i] = respobj[i].high_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
+      prl[i] = respobj[i].low_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
+      prcc[i] = respobj[i].price_change_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
+      prcp[i] = respobj[i].price_change_percentage_24h.toFixed(2);
+      chg[i] = respobj[i].price_change_percentage_24h;
+      toptext[i] = '*' + [1 + i] + '. ' + smb[i] + ':* $' + prc[i] + ' | H: $' + prh[i] + ' | L: $' + prl[i] + ' | 24h: $' + prcc[i] + ' / ' + prcp[i] + '%\n', { parse_mode: 'Markdown'};
+
+    }
+      avgchg = chg.reduce((a, b) => a + b, 0) / prcc.length
+      avgchg = avgchg.toFixed(2);
+      if (avgchg < -25 ){
+        chgcmt = 'Here comes the Wojak train!';
+      } else if (avgchg > 25 ) {
+        chgcmt = 'Number go up! ';
+      } else {
+        chgcmt = "Crabfest galore...";
+      };
+console.log(toptext.join(','));
+bot.sendMessage(msg.chat.id, '*Top 25 Coins by Marketcap:* \n' + toptext.join('') + '\n *Average Change: ' + avgchg + '% | ' + chgcmt + '*', {parse_mode: 'Markdown'});
+}
+)};
+
 
 
 //GET COIN
