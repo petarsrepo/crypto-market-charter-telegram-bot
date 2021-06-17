@@ -166,7 +166,7 @@ bot.on('message', (msg) => {
     xHrs = true;
     xHrsDays = false;
     xDays = false;
-    timeMP = 3;
+    timeMP = 2;
     cptimeframe = ': 4 Hours'
     GetCoin();
     GetChart();
