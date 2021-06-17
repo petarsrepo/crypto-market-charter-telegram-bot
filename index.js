@@ -1001,7 +1001,7 @@ bot.sendAnimation(msg.chat.id, coverCommands[3], { caption: "[Top-7 Trending Coi
 }));
 };
 
-//GET TOP 24 HOUR TOP 25
+//GET TOP 25 24 HOUR
 if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
   axios.get(geckoAPI + '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&sparkline=false')
   .then (function (response) {
@@ -1016,6 +1016,7 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
     var chg = [];
     var chgcmt;
     for (var i = 0; i < respobj.length; i++) {
+      // console.log(respobj[i]);
       smb[i] = respobj[i].symbol.toUpperCase();
       prc[i] = respobj[i].current_price.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
       prh[i] = respobj[i].high_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
@@ -1023,6 +1024,12 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
       prcc[i] = respobj[i].price_change_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
       prcp[i] = respobj[i].price_change_percentage_24h.toFixed(2);
       chg[i] = respobj[i].price_change_percentage_24h;
+
+      hmsym[i] = respobj[i].symbol.toUpperCase();;
+      hmprc[i] = respobj[i].current_price;
+      hmprcp[i] = respobj[i].price_change_percentage_24h;
+
+
       toptext[i] = '*' + [1 + i] + '. ' + smb[i] + ':* $' + prc[i] + ' | H: $' + prh[i] + ' | L: $' + prl[i] + ' | 24h: $' + prcc[i] + ' / ' + prcp[i] + '%\n', { parse_mode: 'Markdown'};
 
     }
@@ -1037,9 +1044,151 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
       };
 console.log(toptext.join(','));
 bot.sendMessage(msg.chat.id, '*Top 25 Coins by Marketcap:* \n' + toptext.join('') + '\n *Average Change: ' + avgchg + '% | ' + chgcmt + '*', {parse_mode: 'Markdown'});
-}
-)};
+GetHMap();
+})
 
+};
+
+
+
+//GET HEATMAP CHART
+
+var hmsym = [];
+var hmprc = [];
+var hmprcp = [];
+var hmcol = [];
+
+function GetHMap() {
+var myChart = new ChartJsImage();
+for (var i = 0; i < hmprc.length; i++) {
+
+
+if (Math.sign(hmprcp[i]) == 1) {
+  hmcol[i] = 'rgba(0, 200, 0, 1)';
+} else if (Math.sign(hmprcp[i]) == -1) {
+    hmcol[i] = 'rgba(200, 0, 0, 1)';
+}
+}
+console.log (Math.sign(hmprcp));
+myChart.setConfig({
+  title: {
+    display: true,
+    text: 'Price Change %: 24h',
+  },
+  type: 'line',
+  data: {
+    labels: hmsym,
+    datasets: [{
+      id: 'bars',
+      type: 'bar',
+      label: 'Top 25 Coins by Marketcap: Price Change % 24h',
+      data: hmprcp,
+      borderColor: hmcol,
+      backgroundColor: hmcol,
+      fill: true,
+      yAxisID: 'y-axis-2',
+    },
+  ]
+  }, options: {
+    title: {
+      display: true,
+      text: 'Price Change %: 24h',
+      position: 'top',
+    },
+    layout: {
+
+      padding: 5,
+    },
+    legend: {
+        display: false,
+      labels: {
+        display: false,
+        padding: 5,
+      }
+    },
+    padding: 5,
+    responsive:true,
+    maintainAspectRatio: false,
+    scales: {
+      ticks: {
+        padding: 5,
+      },
+      grid: {
+        borderDashOffset: 5,
+        drawTicks: true,
+        offset: true,
+      },
+      bounds: 'ticks',
+      type: 'logarithmic',
+      padding: 5,
+      xAxes: [{
+        id: 'x-axis-1',
+        type: 'category',
+        bounds: 'data',
+        position: 'bottom',
+        padding: 5,
+        beginAtZero: true,
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: 30,
+        },
+        grid: {
+          offset: true,
+        },
+        gridLines: {
+          offset: true,
+        },
+      }],
+      yAxes: [{
+        ticks: {
+          autoSkip: true,
+          maxTicksLimit: 8,
+          callback: function(value, index, values) {
+              return value.toLocaleString('en-US', {
+              notation: 'compact',
+              compactDisplay: 'short',
+              maximumFractionDigits: 8,
+            })
+          }},
+        id: 'y-axis-2',
+        bounds: 'ticks',
+        type: 'linear',
+        position: 'left',
+        padding: 5,
+        beginAtZero: true,
+        display: true,
+        grid: {
+         offset: true,
+       },
+        gridLines: {
+         offset: true,
+       }
+     },
+  ]
+    }
+  }
+});
+
+myChart.toFile('mychart.png');
+bot.sendChatAction(msg.chat.id, 'typing');
+setTimeout(function () {
+bot.sendPhoto(msg.chat.id, 'mychart.png');
+}, 2500);
+setTimeout(function () {
+  if (fs.existsSync('mychart.png')) {
+  fs.unlink('mychart.png', (err) => {
+      if (err) {
+          throw err;
+      }
+
+      console.log("File is deleted.");
+  });
+}
+}, 3500);
+
+cid = null;
+csymbol = null;
+};
 
 //GET COIN
 
