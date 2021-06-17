@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 const token = process.env.TELEGRAM_BOT_TOKEN
 const bot = new TelegramBot(token, {interval: 100, timeout: 20, polling: true});
-const botuname = 'YOUR BOT USERNAME HERE';
+const botuname = process.env.BOTUNAME
 bot.on("polling_error", console.log);
 const geckoAPI = 'https://api.coingecko.com/api/v3';
 const geckoWEB = 'https://www.coingecko.com/en/coins/';
