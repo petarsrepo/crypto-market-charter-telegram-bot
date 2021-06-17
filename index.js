@@ -1083,6 +1083,13 @@ if (cfound) {
  }
 }
 
+var cprc;
+var cvol;
+var chgh;
+var clow;
+var cchc;
+var cath;
+var catl;
 
     //GET COIN PRICE
 function GetPrice() {
@@ -1091,19 +1098,56 @@ function GetPrice() {
           axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + cid +'&order=market_cap_desc&per_page=100&page=1&sparkline=false')
           .then(function (response) {
             cpriceobj = response.data;
+
+            cprc = cpriceobj[0].current_price.toLocaleString('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+            maximumFractionDigits: 8,
+          });
+            cvol = cpriceobj[0].total_volume.toLocaleString('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+            maximumFractionDigits: 8,
+          });
+            chgh = cpriceobj[0].high_24h.toLocaleString('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+            maximumFractionDigits: 8,
+          });
+            clow = cpriceobj[0].low_24h.toLocaleString('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+            maximumFractionDigits: 8,
+          });
+            cchc = cpriceobj[0].price_change_24h.toLocaleString('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+            maximumFractionDigits: 8,
+          });
+            cath = cpriceobj[0].ath.toLocaleString('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+            maximumFractionDigits: 8,
+          });
+            catl = cpriceobj[0].atl.toLocaleString('en-US', {
+            notation: 'compact',
+            compactDisplay: 'short',
+            maximumFractionDigits: 8,
+          });
+
             available =
             '*' + cpriceobj[0].name + '*' +
             '\n*Rank:* #' + cpriceobj[0].market_cap_rank +
-            '\n*Price:* $' + nf.format(Math.round((cpriceobj[0].current_price + Number.EPSILON) * 100) / 100) +
+            '\n*Price:* $' + cprc +
             '\n*Market Cap:* $' + nf.format(Math.round(cpriceobj[0].market_cap)) +
-            '\n*24h Volume:* $' + nf.format(Math.round(cpriceobj[0].total_volume)) +
-            '\n*24h High:* $' + nf.format(Math.round((cpriceobj[0].high_24h + Number.EPSILON) * 100) / 100) +
-            '\n*24h Low:* $' + nf.format(Math.round((cpriceobj[0].low_24h + Number.EPSILON) * 100) / 100) +
-            '\n*24h Change:* $' + nf.format(Math.round((cpriceobj[0].price_change_24h + Number.EPSILON) * 100) / 100) +
+            '\n*24h Volume:* $' + cvol +
+            '\n*24h High:* $' + chgh +
+            '\n*24h Low:* $' + clow +
+            '\n*24h Change:* $' + cchc +
             '\n*24h Change:* ' + nf.format(Math.round((cpriceobj[0].price_change_percentage_24h + Number.EPSILON) * 100) / 100) + '%' +
-            '\n*ATH: $*' + nf.format(Math.round((cpriceobj[0].ath + Number.EPSILON) * 100) / 100) +
+            '\n*ATH: $*' + cath +
             '\n*ATH Difference:* ' + nf.format(Math.round((cpriceobj[0].ath_change_percentage + Number.EPSILON) * 100) / 100) + '%' +
-            '\n*ATL:* $' + nf.format(Math.round((cpriceobj[0].atl + Number.EPSILON) * 100) / 100) +
+            '\n*ATL:* $' + catl +
             '\n*ATL Difference:* ' + nf.format(Math.round((cpriceobj[0].atl_change_percentage + Number.EPSILON) * 100) / 100) + '%' +
             '\n*Circulating:* ' + nf.format(Math.round(cpriceobj[0].circulating_supply));
 
