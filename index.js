@@ -1176,7 +1176,7 @@ function GetChart(){
                   var tdval = [];
                   for (var i = 0; i < priceobj.length; i = i + timeMP) {
                     xval[i] = priceobj[i][0];
-                    yval[i] = priceobj[i][1].toFixed(2);
+                    yval[i] = priceobj[i][1].toFixed(8);
                     mval[i] = mcapobj[i][1].toFixed(2);
                     vval[i] = volobj[i][1].toFixed(2);
                   }
@@ -1302,6 +1302,7 @@ function GetChart(){
                                    return value.toLocaleString('en-US', {
                                    notation: 'compact',
                                    compactDisplay: 'short',
+                                   maximumFractionDigits: 8,
                                  })
                                }},
                              id: 'y-axis-1',
@@ -1325,6 +1326,7 @@ function GetChart(){
                                  return value.toLocaleString('en-US', {
                                  notation: 'compact',
                                  compactDisplay: 'short',
+                                 maximumFractionDigits: 8,
                                })
                              }},
                              id: 'y-axis-2',
@@ -1723,15 +1725,26 @@ function GetChart(){
                                            }],
                                            yAxes: [{
                                              ticks: {
-                                               autoSkip: true,
-                                               maxTicksLimit: 8,
-                                               callback: function(value, index, values) {
-                                                   return value.toLocaleString('en-US', {
-                                                   notation: 'compact',
-                                                   compactDisplay: 'short',
-                                                 })
-                                               }},
+                                              autoSkip: true,
+                                              maxTicksLimit: 8,
+                                              callback: function(value, index, values) {
+                                                  return value.toLocaleString('en-US', {
+                                                  notation: 'compact',
+                                                  compactDisplay: 'short',
+                                                  maximumFractionDigits: 8,
+                                                })
+                                              }},
                                              id: 'y-axis-1',
+                                             ticks: {
+                                              autoSkip: true,
+                                              maxTicksLimit: 8,
+                                              callback: function(value, index, values) {
+                                                  return value.toLocaleString('en-US', {
+                                                  notation: 'compact',
+                                                  compactDisplay: 'short',
+                                                  maximumFractionDigits: 8,
+                                                })
+                                              }},
                                              bounds: 'data',
                                              type: 'linear',
                                              position: 'left',
