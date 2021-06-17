@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 const token = process.env.TELEGRAM_BOT_TOKEN
 const bot = new TelegramBot(token, {interval: 100, timeout: 20, polling: true});
-const botuname = 'mktchrtdevbot';
+const botuname = 'YOUR BOT USERNAME HERE';
 bot.on("polling_error", console.log);
 const geckoAPI = 'https://api.coingecko.com/api/v3';
 const geckoWEB = 'https://www.coingecko.com/en/coins/';
@@ -41,7 +41,6 @@ var today = Math.round((new Date()).getTime() / 1000);
 
 async function UpdateTime() {
   ftoday = new Date().getTime();
-//  console.log(today);
   setTimeout(function(){
     UpdateTime();
   },1000);
@@ -50,6 +49,10 @@ async function UpdateTime() {
 
 var cid;
 var csymbol;
+var msgsymbol = {};
+var msgid;
+var lastcsymbol;
+var lastdetails;
 var available;
 var missing;
 var details;
@@ -73,7 +76,7 @@ console.log(botuname);
 
 //GET COINS LIST
 
-function loadCoins() {
+async function loadCoins() {
     axios.get(geckoAPI + '/coins/list')
     .then(function (response) {
       coinsList = response.data;
@@ -114,7 +117,6 @@ bot.on('message', (msg) => {
   var iQrt = "/iq ";//8d int 90d
   var iSixm = "/is ";//12d int 180d
   var iYear = "/iy ";//24d int 365d
-
 
   var spit = "/spit ";
 
@@ -844,11 +846,12 @@ for (var i = 0; i < 5; i++) {
     bot.sendPhoto(msg.chat.id, thrimgurl, { caption: ' * ' + '' + threadobj.posts[thrsrchindex].sub + '' + ' * ' +
     '\n' + threadobj.posts[thrsrchindex].replies + ' replies from ' + threadobj.posts[thrsrchindex].unique_ips + ' IDs: ' +
     '\n[Read Full Story on /biz/]' + '(' + threadurl + ')' , parse_mode: 'Markdown' });
-
   })
   })
 
 };
+
+
 
 
 //GET WOJAK INDEX
@@ -896,7 +899,7 @@ if (uniMsg == "/wjk" || uniMsg == "/wjk@" + botuname) {
     }))
     };
 
-GetLinkCap();
+
     var linkmcap;
     function GetLinkCap() {
 
@@ -909,6 +912,7 @@ GetLinkCap();
     }
 
 if (uniMsg == "/crypto" || uniMsg == "/crypto@" + botuname) {
+GetLinkCap();
 axios.get(geckoAPI + '/global')
 .then (function (response) {
   var respobj = response.data;
@@ -996,7 +1000,6 @@ bot.sendAnimation(msg.chat.id, coverCommands[3], { caption: "[Top-7 Trending Coi
 }));
 };
 
-
 //GET TOP 24 HOUR TOP 25
 if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
   axios.get(geckoAPI + '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&sparkline=false')
@@ -1012,7 +1015,6 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
     var chg = [];
     var chgcmt;
     for (var i = 0; i < respobj.length; i++) {
-      // console.log(respobj[i]);
       smb[i] = respobj[i].symbol.toUpperCase();
       prc[i] = respobj[i].current_price.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
       prh[i] = respobj[i].high_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
@@ -1036,7 +1038,6 @@ console.log(toptext.join(','));
 bot.sendMessage(msg.chat.id, '*Top 25 Coins by Marketcap:* \n' + toptext.join('') + '\n *Average Change: ' + avgchg + '% | ' + chgcmt + '*', {parse_mode: 'Markdown'});
 }
 )};
-
 
 
 //GET COIN
@@ -1239,7 +1240,6 @@ function GetChart(){
                            fill: true,
                            order: 1,
                            grouped: false,
-                           //minBarLength: 100,
                            yAxisID: 'y-axis-1',
                            barThickness: 'flex',
                            categoryPercentage: 1,
@@ -1403,6 +1403,14 @@ function GetChart(){
                                   var absavg = [];
                                   var highavg = [];
                                   var lowavg = [];
+                                  var rs = [];
+                                  var rsi = [];
+                                  var rsiavg = [];
+                                  var rsihvg = [];
+                                  var rsilvg = [];
+                                  var lowtick = [];
+
+
 
                                   for (var i = 0; i < priceobj.length - 1; i++) {
                                     tval[i] = new Date(priceobj[i][0]).toLocaleTimeString('en-US' , { hour: '2-digit' });
@@ -1448,6 +1456,13 @@ function GetChart(){
                                        lowavg[i] = absavg[i] - Math.min(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]);
                                        highavg[i] = Math.max(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]) - absavg[i];
 
+                                       rs[i] = highavg[i] / lowavg[i];
+                                       rsi[i] = (100 - (100 / 1 + rs[i])) * 100;
+                                       rsiavg[i] = absavg[i] + rsi[i] * absavg[i];
+                                       rsihvg[i] = rsiavg[i] + rsi[i] * highavg[i];
+                                       rsilvg[i] = rsiavg[i] - rsi[i] * lowavg[i];
+                                       lowtick[i] = amplitude[i] + rsilvg[i]
+
                                     //SET CHART CONFIG
 
                                      var myChart = new ChartJsImage();
@@ -1462,7 +1477,7 @@ function GetChart(){
                                        data: {
                                          labels: tdval,
                                          datasets: [{
-                                           label: ' Price: $' + Number(closeval[closeval.length - 1]).toLocaleString('en-US', {
+                                           label: ' Price: $' + Number(closeval[i]).toLocaleString('en-US', {
                                            notation: 'compact',
                                            compactDisplay: 'short',
                                          }) + "     ",
@@ -1470,15 +1485,15 @@ function GetChart(){
                                            pointRadius: 0,
                                            pointStyle: 'line',
                                            stepped: true,
-                                           borderWidth: 2,
+                                           borderWidth: 3,
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            fill: false,
                                            showLine: true,
-                                           borderColor: 'rgba(0, 0, 200, 0.5)',
-                                           backgroundColor: 'rgba(0, 0, 200, 0.1)',
+                                           borderColor: 'rgba(0, 0, 0, 1)',
+                                           backgroundColor: 'rgba(0, 0, 0, 1)',
                                            yAxisID: 'y-axis-1',
-                                           tension: 1,
+                                           tension: 0,
                                          },{
                                            id: 'maslow',
                                            label: ' MA: SLOW ',
@@ -1488,11 +1503,11 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 2,
                                            fill: false,
-                                           borderDash: [4,4],
+                                           //borderDash: [4,4],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
-                                           borderColor: 'rgba(200, 0, 200, 1)',
-                                           backgroundColor: 'rgba(200, 0, 200, 0.1)',
+                                           borderColor: 'rgba(255, 0, 0, 1)',
+                                           backgroundColor: 'rgba(255, 0, 0, 1)',
 
                                            yAxisID: 'y-axis-1',
                                            tension: 0.1,
@@ -1505,11 +1520,11 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 2,
                                            fill: false,
-                                           borderDash: [4,4],
+                                           //borderDash: [4,4],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
-                                           borderColor: 'rgba(0, 150, 150, 1)',
-                                           backgroundColor: 'rgba(0, 150, 150, 0.1)',
+                                           borderColor: 'rgba(77, 5, 232, 1)',
+                                           backgroundColor: 'rgba(77, 5, 232, 1)',
                                            yAxisID: 'y-axis-1',
                                            tension: 0.1,
                                          },{
@@ -1522,6 +1537,7 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 0,
                                            fill: '+1',
+                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(0, 0, 200, 0.1)',
@@ -1539,6 +1555,7 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 0,
                                            fill: '-1',
+                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(0, 0, 200, 0)',
@@ -1546,16 +1563,34 @@ function GetChart(){
                                            yAxisID: 'y-axis-1',
                                            tension: 0,
                                          },{
+                                             type: 'line',
+                                             id: 'rsi',
+                                             label: ' RSI: ',
+                                             data: rsi,
+                                             pointRadius: 2,
+                                             pointStyle: 'line',
+                                             stepped: true,
+                                             borderWidth: 2,
+                                             borderJoinStyle: 'round',
+                                             borderCapStyle: 'cap',
+                                             fill: true,
+                                             showLine: true,
+                                             borderColor: 'rgba(255, 255, 255, 1)',
+                                             backgroundColor: 'rgba(255, 255, 255, 1)',
+                                             yAxisID: 'y-axis-2',
+                                             tension: 1,
+                                           },{
                                            id: 'topWicksSup',
                                            label: ' TWS ',
                                            type: 'bar',
                                            display: false,
-                                           data: absavg ,
+                                           data: absavg,
+                                           //base: barval,
                                            borderWidth: 3,
                                            borderColor: 'rgba(155, 0 , 0, 0.2)',
                                            backgroundColor: 'rgba(155, 0, 0, 0.2)',
                                            grouped: false,
-                                           yAxisID: 'y-axis-2',
+                                           yAxisID: 'y-axis-3',
                                            xAxisID: 'x-axis-1',
                                          },{
                                            id: 'topWicks',
@@ -1564,15 +1599,18 @@ function GetChart(){
                                            type: 'bar',
                                            showLine: false,
                                            data:  highavg,
+                                           //base: 30,
                                            pointRadius: 3,
                                            pointStyle: 'line',
                                            borderWidth: 3,
+                                        //   fill: '-1',
+                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(155, 100, 0, 0.2)',
                                            backgroundColor: 'rgba(155, 100, 0, 0.2)',
                                            grouped: false,
-                                           yAxisID: 'y-axis-2',
+                                           yAxisID: 'y-axis-3',
                                            xAxisID: 'x-axis-1',
                                            tension: 0.1,
                                          },{
@@ -1580,13 +1618,13 @@ function GetChart(){
                                            label: ' BWS ',
                                            type: 'bar',
                                            display: false,
-                                           data: absavg,
+                                           data: lowtick,
                                            //base: barval,
                                            borderWidth: 3,
                                            borderColor: 'rgba(100, 155, 0, 0.2)',
                                            backgroundColor: 'rgba(100, 155, 0, 0.2)',
                                            grouped: true,
-                                           yAxisID: 'y-axis-2',
+                                           yAxisID: 'y-axis-3',
                                            xAxisID: 'x-axis-1',
                                          },{
                                            id: 'botWick',
@@ -1595,15 +1633,18 @@ function GetChart(){
                                            type: 'bar',
                                            showLine: false,
                                            data: lowavg ,
+                                           //base: 30,
                                            pointRadius: 3,
                                            pointStyle: 'line',
                                            borderWidth: 3,
+                                          // fill: '-1',
+                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(0, 155, 0, 0.2)',
                                            backgroundColor: 'rgba(0, 155, 0, 0.2)',
                                            grouped: true,
-                                           yAxisID: 'y-axis-2',
+                                           yAxisID: 'y-axis-3',
                                            xAxisID: 'x-axis-1',
                                            tension: 0.1,
                                          }]
@@ -1707,10 +1748,10 @@ function GetChart(){
                                           id: 'y-axis-2',
                                           bounds: 'data',
                                           type: 'logarithmic',
-                                          stacked: true,
-                                          position: 'right',
+                                          stacked: false,
+                                          position: 'center',
                                           padding: 5,
-                                          beginAtZero: false,
+                                          beginAtZero: true,
                                           display: false,
                                           grid: {
                                            offset: false,
