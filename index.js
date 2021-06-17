@@ -91,7 +91,17 @@ async function loadCoins() {
 
 loadCoins();
 
+var linkmcap;
+function GetLinkCap() {
 
+axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'chainlink' +'&order=market_cap_desc&per_page=100&page=1&sparkline=false')
+  .then(function (response) {
+      var priceobj = response.data;
+      linkmcap = priceobj[0].market_cap;
+    });
+}
+
+GetLinkCap();
 
 //START MESSAGE LISTENER
 
@@ -900,16 +910,7 @@ if (uniMsg == "/wjk" || uniMsg == "/wjk@" + botuname) {
     };
 
 
-    var linkmcap;
-    function GetLinkCap() {
 
-  axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'chainlink' +'&order=market_cap_desc&per_page=100&page=1&sparkline=false')
-      .then(function (response) {
-          var priceobj = response.data;
-          linkmcap = priceobj[0].market_cap;
-          console.log(linkmcap);
-        });
-    }
 
 if (uniMsg == "/crypto" || uniMsg == "/crypto@" + botuname) {
 GetLinkCap();
