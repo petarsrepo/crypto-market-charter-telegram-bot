@@ -7,7 +7,7 @@ This is a bot that provides cryptocurrency market information and basic charting
 1) Node.js
 2) Telegram bot from @BotFather
 
-**OPEN TESTING**
+**OPEN TESTING**  
 Start a chat with @MarketCharterBot directly or add it to a channel.
 
 **INSTALLATION**
@@ -34,18 +34,23 @@ Start a chat with @MarketCharterBot directly or add it to a channel.
 5) Click Edit Commands
 6) Input the list below as one message and hit enter:
 help - Get help on how to use my services
-i - Get coin information e.g. /c bitcoin  
-d - Get coin market data e.g. /p ethereum  
-mn  - Get price & volume chart at minute interval  
-mh - Get price & volume chart at hour interval   
-mt - Get price & volume chart at twelve hour interval  
-md - Get price & volume chart at day interval  
-mw - Get price & volume chart at week interval  
-mf - Get price & volume chart at fortnight interval  
-ph - Get price chart with indicators at hour interval  
-pd  - Get price chart with indicators at day interval  
-pw - Get price chart with indicators at weekly interval  
-pf - Get price chart with indicators at fortnight interval  
+i - Get coin information e.g. /i bitcoin  
+p - Get coin market data e.g. /p ethereum  
+ph  - Get price & volume chart for 4 hours  
+pd - Get price & volume chart for 1 day  
+pw - Get price & volume chart for 1 week  
+pm - Get price & volume chart for 1 month  
+pq - Get price & volume chart  for 1 quarter  
+ps - Get price & volume chart for 1 half year  
+py - Get price & volume chart for 1 year  
+id - Get price chart with indicators for 1 day  
+iw  - Get price chart with indicators for 1 week  
+if - Get price chart with indicators for 1 fortnight  
+im - Get price chart with indicators for 1 month  
+iq - Get price chart with indicators for 1 quarter  
+is - Get price chart with indicators for 1 half year   
+iy - Get price chart with indicators for 1 year   
+top - Get the Top 25 Coins by Marketcap  
 hot - Get the Top 7 Trending Coins on CoinGecko  
 crypto - Get global crypto market data  
 defi - Get global DeFi market data  
@@ -53,26 +58,3 @@ wjk - Get key metrics about the Wojak Index
 biz - Get a random popular thread on /biz/  
 quote - Get a random crypto quote  
 about - Get developer and licensing info  
-
-**CHAT COMMANDS**
-
-/help - Get help on how to use my services  
-/i - Get coin information e.g. /c bitcoin  
-/d - Get coin market data e.g. /p ethereum  
-/mn  - Get price & volume chart at minute interval  
-/mh - Get price & volume chart at hour interval  
-/mt - Get price & volume chart at twelve hour interval  
-/md - Get price & volume chart at day interval  
-/mw - Get price & volume chart at week interval  
-/mf - Get price & volume chart at fortnight interval  
-/ph - Get price chart with indicators at hour interval  
-/pd  - Get price chart with indicators at day interval  
-/pw - Get price chart with indicators at weekly interval  
-/pf - Get price chart with indicators at fortnight interval  
-/hot - Get the Top 7 Trending Coins on CoinGecko  
-/crypto - Get global crypto market data  
-/defi - Get global DeFi market data  
-/wjk - Get key metrics about the Wojak Index  
-/biz - Get a random popular thread on /biz/  
-/quote - Get a random crypto quote  
-/about - Get developer and licensing info  
