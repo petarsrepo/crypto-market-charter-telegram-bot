@@ -22,8 +22,6 @@ Start a chat with @MarketCharterBot directly or add it to a channel.
 8) Open Command Prompt, or other command interface you might have and navigate to the bot folder
 9) Type node index.js and press enter
 10) Your bot is now running
-11) Add the bot you created to the two groups you want to link
-12) Check the next section to display command preview
 
 **DISPLAY COMMANDS PREVIEW**
 
