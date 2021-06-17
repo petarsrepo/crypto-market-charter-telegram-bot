@@ -20,7 +20,7 @@ Start a chat with @MarketCharterBot directly or add it to a channel.
 8) Open the .env file, find the following line in the code TELEGRAM_BOT_TOKEN=YOUR BOT TOKEN HERE and replace YOUR BOT TOKEN HERE with your bot api token.
 9) Find the following line in the code BOTUNAME=YOUR BOT USERNAME HERE and replace YOUR BOT USERNAME HERE with your bot username without the '@'
 8) Open Command Prompt, or other command interface you might have and navigate to the bot folder
-9) Type node index.js and press enter
+9) Type node index.js or nodemon index.js and press enter
 10) Your bot is now running
 
 **DISPLAY COMMANDS PREVIEW**
