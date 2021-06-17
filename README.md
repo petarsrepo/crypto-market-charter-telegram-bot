@@ -17,8 +17,8 @@ Start a chat with @MarketCharterBot directly or add it to a channel.
 3) Launch Telegram and start a conversation with @BotFather
 4) Create a new bot by following the instructions and copy the API key
 5) Visit the folder you extracted the bot files to and open index.js
-8) Create an .env file and add this line as code TELEGRAM_BOT_TOKEN=YOUR BOT TOKEN HERE
-9) Find the following line in the code and replace it with your bot username without the '@': const botuname = 'YOUR BOT USERNAME HERE';
+8) Open the .env file, find the following line in the code TELEGRAM_BOT_TOKEN=YOUR BOT TOKEN HERE and replace YOUR BOT TOKEN HERE with your bot api token.
+9) Find the following line in the code BOTUNAME=YOUR BOT USERNAME HERE and replace YOUR BOT USERNAME HERE with your bot username without the '@'
 8) Open Command Prompt, or other command interface you might have and navigate to the bot folder
 9) Type node index.js and press enter
 10) Your bot is now running
