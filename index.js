@@ -20,8 +20,10 @@ const bizThread = 'http://boards.4chan.org/biz/thread/';
 const bizAPI = 'https://a.4cdn.org/biz/threads.json';
 const threadAPI = 'https://a.4cdn.org/biz/thread/';
 const math = require('mathjs');
-const coverCommands = ['media/global.gif', 'media/defi.gif', 'media/help.gif', 'media/hot.gif', 'media/about.gif'];
+const coverCommands = ['media/global.gif', 'media/defi.gif', 'media/help.gif', 'media/hot.gif', 'media/about.gif', 'media/gas.gif' , 'media/top.gif'];
 const coverBog = ['media/bog1.gif', 'media/bog2.gif', 'media/bog3.gif', 'media/bog4.gif', 'media/bog5.gif'];
+
+//const ChartFinancial = require('chartjs-chart-financial') COMING SOON geckoAPI/coins/{id}/ohlc Get coin's OHLC
 
 //KEY TIMEFRAMES IN UNIX
 var fminute = 60000;
@@ -41,6 +43,7 @@ var today = Math.round((new Date()).getTime() / 1000);
 
 async function UpdateTime() {
   ftoday = new Date().getTime();
+//  console.log(today);
   setTimeout(function(){
     UpdateTime();
   },1000);
@@ -94,14 +97,25 @@ loadCoins();
 var linkmcap;
 function GetLinkCap() {
 
-axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'chainlink' +'&order=market_cap_desc&per_page=100&page=1&sparkline=false')
+axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'chainlink' +'&order=market_cap_desc&per_page=1&page=1&sparkline=false')
   .then(function (response) {
       var priceobj = response.data;
       linkmcap = priceobj[0].market_cap;
     });
 }
 
+var ethprc;
+function GetEthPrice() {
+axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'ethereum' +'&order=market_cap_desc&per_page=1&page=1&sparkline=false')
+  .then(function (response) {
+      var priceobj = response.data;
+      ethprc = priceobj[0].current_price;
+
+    });
+}
+
 GetLinkCap();
+GetEthPrice();
 
 //START MESSAGE LISTENER
 
@@ -176,7 +190,7 @@ bot.on('message', (msg) => {
     xHrs = true;
     xHrsDays = false;
     xDays = false;
-    timeMP = 2;
+    timeMP = 3;
     cptimeframe = ': 4 Hours'
     GetCoin();
     GetChart();
@@ -615,6 +629,14 @@ bot.on('message', (msg) => {
   }
 
 
+  //ADD SUPPORT FOR DAILY, HOURLY & MINUTE CHARTS
+  //use /coins/{id}/market_chart/range
+//Get historical market data include price, market cap, and 24h volume within a range of timestamp (granularity auto)
+// Data granularity is automatic (cannot be adjusted)
+// 1 day from query time = 5 minute interval data
+// 1 - 90 days from query time = hourly data
+// above 90 days from query time = daily data (00:00 UTC)
+
 //ABOUT
 if (uniMsg == "/about" || uniMsg == "/about@" + botuname) {
   bot.sendChatAction(msg.chat.id, 'typing');
@@ -633,10 +655,11 @@ if (uniMsg == "/help" || uniMsg == "/help@" + botuname) {
   bot.sendAnimation(msg.chat.id, coverCommands[2], {caption :
     "\n/i - `Get coin information e.g. /c btc`" +
     "\n/p - `Get coin market data e.g. /p ethereum`" +
-    "\n/ph | /pd | /pw | /pm | /pq | /ps | /py - `Get price & volume chart at various time scales`" +
-    "\n/id | /iw | /if | /im | /iq | /is | /iy - `Get price chart with indicators at various time scales`" +
-    "\n/top - `Get the Top 25 Coins by Marketcap`" +
+    "\n/ph | /pd | /pw | /pm | /pq | /ps | /py - `Get price & volume chart for various time`" +
+    "\n/id | /iw | /if | /im | /iq | /is | /iy - `Get price chart with indicators for various time`" +
+    "\n/top | /hmap - `Get the Top 25 Coins by Marketcap in text or chart form`" +
     "\n/hot - `Get the Top 7 Trending Coins`" +
+    "\n/gas - `Get the Gas Cost estimations`" +
     "\n/crypto - `Get global crypto market data`" +
     "\n/defi - `Get global DeFi market data`" +
     "\n/wjk - `Get key metrics about the Wojak Index`" +
@@ -851,6 +874,7 @@ for (var i = 0; i < 5; i++) {
         thrsrchindex = i;
       }
     } console.log(threadurl)
+    //var thdbdy = threadobj.posts[thrsrchindex].com.substr(0, 200);
     thrimgurl = wImageUrl + threadobj.posts[thrsrchindex].tim + threadobj.posts[thrsrchindex].ext;
     bot.sendChatAction(msg.chat.id, 'typing');
     bot.sendPhoto(msg.chat.id, thrimgurl, { caption: ' * ' + '' + threadobj.posts[thrsrchindex].sub + '' + ' * ' +
@@ -909,8 +933,7 @@ if (uniMsg == "/wjk" || uniMsg == "/wjk@" + botuname) {
     }))
     };
 
-
-
+//GET CRYPTO MARKET DATA
 
 if (uniMsg == "/crypto" || uniMsg == "/crypto@" + botuname) {
 GetLinkCap();
@@ -926,6 +949,7 @@ axios.get(geckoAPI + '/global')
   var tvol = respobj.data.total_volume.usd.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
   var btcdom = respobj.data.market_cap_percentage.btc.toFixed(2);
   var linkdom = (linkmcap / respobj.data.total_market_cap.usd).toFixed(4);
+  GetLinkCap();
   bot.sendChatAction(msg.chat.id, 'typing');
   bot.sendAnimation(msg.chat.id, coverCommands[0], { caption: '*Global Market Data - Crypto:*' +
   '\n*Total Coins:* ' + totalcoins +
@@ -939,6 +963,8 @@ axios.get(geckoAPI + '/global')
   '\n*Chainlink Dominance:* ' + linkdom + '%' , parse_mode: 'Markdown'});
 });
 }
+
+//GET DEFI MARKET INFORMATION
 
 if (uniMsg == "/defi" || uniMsg == "/defi@" + botuname) {
   axios.get(geckoAPI + '/global/decentralized_finance_defi')
@@ -963,6 +989,37 @@ if (uniMsg == "/defi" || uniMsg == "/defi@" + botuname) {
   });
 }
 
+//GET GAS PRICE ESTIMATIONS
+
+if (uniMsg == "/gas" || uniMsg == "/gas@" + botuname) {
+GetEthPrice();
+      console.log(ethprc)
+axios.get('https://api.etherscan.io/api?module=gastracker&action=gasoracle')
+.then (function (response) {
+  var respobj = response.data;
+  console.log(response.data.result.SafeGasPrice)
+  var gsfe = 21000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var gavg = 21000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var ghgh = 21000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  var gtsfe = 65000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var gtavg = 65000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var gthgh = 65000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  var gssfe = 200000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var gsavg = 200000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var gshgh = 200000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  var glsfe = 175000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var glavg = 175000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var glhgh = 175000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  console.log(gsfe, gavg, ghgh, gtsfe, gtavg, gthgh, gssfe, gsavg, gshgh, glsfe, glavg, glhgh,)
+  var gstr = '*Ethereum Network Gas Fees: *' + '\n' +
+  '*Ethereum: *' + '*Low: *$' + gsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' | *Avg: *$' + gavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + ghgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
+  '*Token: *' + '*Low: *$' + gtsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + gtavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + gthgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
+  '*Swap: *' + '*Low: *$' + gssfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + gsavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + gshgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
+  '*Liquidity: *' + '*Low: *$' + glsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + glavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + glhgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2});
+  bot.sendChatAction(msg.chat.id, 'typing');
+  bot.sendAnimation(msg.chat.id, coverCommands[5], {caption: gstr, parse_mode: 'Markdown'});
+})
+}
 
 //GET TOP TRENDING COINS
 
@@ -1001,6 +1058,11 @@ bot.sendAnimation(msg.chat.id, coverCommands[3], { caption: "[Top-7 Trending Coi
 }));
 };
 
+
+
+
+
+
 //GET TOP 25 24 HOUR
 if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
   axios.get(geckoAPI + '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&sparkline=false')
@@ -1025,11 +1087,6 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
       prcp[i] = respobj[i].price_change_percentage_24h.toFixed(2);
       chg[i] = respobj[i].price_change_percentage_24h;
 
-      hmsym[i] = respobj[i].symbol.toUpperCase();;
-      hmprc[i] = respobj[i].current_price;
-      hmprcp[i] = respobj[i].price_change_percentage_24h;
-
-
       toptext[i] = '*' + [1 + i] + '. ' + smb[i] + ':* $' + prc[i] + ' | H: $' + prh[i] + ' | L: $' + prl[i] + ' | 24h: $' + prcc[i] + ' / ' + prcp[i] + '%\n', { parse_mode: 'Markdown'};
 
     }
@@ -1044,7 +1101,6 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
       };
 console.log(toptext.join(','));
 bot.sendMessage(msg.chat.id, '*Top 25 Coins by Marketcap:* \n' + toptext.join('') + '\n *Average Change: ' + avgchg + '% | ' + chgcmt + '*', {parse_mode: 'Markdown'});
-GetHMap();
 })
 
 };
@@ -1057,10 +1113,23 @@ var hmsym = [];
 var hmprc = [];
 var hmprcp = [];
 var hmcol = [];
+var hmtxt = [];
 
-function GetHMap() {
+if (uniMsg == "/hmap" || uniMsg == "/hmap@" + botuname) {
+
+  axios.get(geckoAPI + '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&sparkline=false')
+  .then (function (response) {
+    var respobj = response.data;
+    for (var i = 0; i < respobj.length; i++) {
+      hmsym[i] = respobj[i].symbol.toUpperCase();;
+      hmprc[i] = respobj[i].current_price.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
+      hmprcp[i] = respobj[i].price_change_percentage_24h;
+      hmtxt[i] = '*' + hmsym[i] + ':* $' + hmprc[i], {parse_mode: 'Markdown'};
+    }
+
 var myChart = new ChartJsImage();
 for (var i = 0; i < hmprc.length; i++) {
+var hmstr = hmtxt.join(' | ');
 
 
 if (Math.sign(hmprcp[i]) == 1) {
@@ -1088,6 +1157,18 @@ myChart.setConfig({
       fill: true,
       yAxisID: 'y-axis-2',
     },
+//     {
+//       id: 'line',
+//       type: 'line',
+//       pointRadius: 0,
+// //      label: 'Top 25 Coins by Marketcap: Price Change % 24h',
+//       data: hmprc,
+//       steppedLine: 'middle',
+//       borderColor: 'rgba(0, 0, 200, 0.5)',
+//       backgroundColor: 'rgba(0, 0, 200, 0.1)',
+//       fill: true,
+//       yAxisID: 'y-axis-1',
+//     }
   ]
   }, options: {
     title: {
@@ -1164,6 +1245,31 @@ myChart.setConfig({
          offset: true,
        }
      },
+    //  {
+    //    ticks: {
+    //      autoSkip: true,
+    //      maxTicksLimit: 8,
+    //      callback: function(value, index, values) {
+    //          return value.toLocaleString('en-US', {
+    //          notation: 'compact',
+    //          compactDisplay: 'short',
+    //          maximumFractionDigits: 8,
+    //        })
+    //      }},
+    //    id: 'y-axis-1',
+    //    bounds: 'data',
+    //    type: 'logarithmic',
+    //    position: 'left',
+    //    padding: 5,
+    //    beginAtZero: false,
+    //    display: true,
+    //    grid: {
+    //     offset: true,
+    //   },
+    //    gridLines: {
+    //     offset: true,
+    //   }
+    // }
   ]
     }
   }
@@ -1172,7 +1278,7 @@ myChart.setConfig({
 myChart.toFile('mychart.png');
 bot.sendChatAction(msg.chat.id, 'typing');
 setTimeout(function () {
-bot.sendPhoto(msg.chat.id, 'mychart.png');
+bot.sendPhoto(msg.chat.id, 'mychart.png', {caption: hmstr, parse_mode: 'Markdown'});
 }, 2500);
 setTimeout(function () {
   if (fs.existsSync('mychart.png')) {
@@ -1188,7 +1294,20 @@ setTimeout(function () {
 
 cid = null;
 csymbol = null;
+})
 };
+
+
+
+// //GET LIQUIDATIONS
+//
+// if (uniMsg == "/rekt" || uniMsg == "/rekt@" + botuname) {
+//   axios.get('https://api.tardis.dev/v1/data-feeds/bitmex?from=2019-08-01&filters=[%7B%22channel%22:%22liquidation%22%7D]&offset=1')
+//   .then (function (response) {
+//     var respobj = response.data;
+//     console.log(respobj);
+//
+//   })};
 
 //GET COIN
 
@@ -1347,6 +1466,268 @@ function GetPrice() {
           }
         }
 
+        //     bot.sendChatAction(msg.chat.id, 'typing');
+        //     bot.sendPhoto(msg.chat.id, cpriceobj[0].image, {caption: details + '\n' + today, "reply_markup": {"inline_keyboard": [[{text: 'Update', callback_data: msg.chat.id + ',' + msg.message_id + ',' + csymbol}]]}, parse_mode: 'Markdown'});
+        //     msgid = msg.message_id + 1;
+        //     console.log('og: ' + msg.chat.id + "," + msg.message_id + "," + msgid);
+        //     // //  console.log(msgid);
+        //     msgsymbol[msgid] = csymbol;
+        //
+        //
+        //     bot.on("callback_query", (example) => {
+        //     //  var action = new example.data;
+        //       var action = example.data.split(',')
+        //       var testsymb = action[2];
+        //       var testmid = parseInt(action[1]) + 1;
+        //       var testcid = parseInt(action[0]);
+        //
+        //         console.log(testmid, example.message.message_id, testsymb, csymbol);
+        //         //bot.editMessageCaption('', {chat_id: example.message.chat.id, message_id: example.message.message_id});
+        //         if (testsymb == csymbol && example.message.message_id == testmid) {
+        //
+        //         GetCoin();
+        //         UpdatePrice();
+        //         bot.answerCallbackQuery(example.id)
+        //         .then (function (update) {
+        //         bot.editMessageCaption(newcap + '\n' + today, {chat_id: testcid, message_id: testmid, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'Update', callback_data: msg.chat.id + ',' + msg.message_id + ',' + csymbol }]]}});
+        //       });
+        //     } else {
+        //         csymbol = testsymb;
+        //         testmid = (msg.message_id) + 1;
+        //         GetCoin();
+        //         UpdatePrice();
+        //         bot.answerCallbackQuery(example.id)
+        //         .then (function (update) {
+        //         bot.editMessageCaption(newcap + '\n' + today, {chat_id: testcid, message_id: testmid, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'Update', callback_data: msg.chat.id + ',' + msg.message_id + ',' + csymbol }]]}});
+        //       })}
+        //       })
+        //
+        //
+        //   });
+        // }  else {
+        //       bot.sendMessage(msg.chat.id, 'Cannot find "' + msg.text.substr(4) + '" in the database.');
+        //     }
+        //   }
+
+          // var action = [];
+          // var actionid = [];
+          // var edtmid = [];
+          // var edtcid = [];
+          // var newmid = []
+          // bot.on("callback_query", (example) => {
+          //   console.log('data ' + example.data)
+          //   if(action.indexOf(example.data) === -1) {
+          //     action.push(example.data)
+          //     actionid.push(example.id);
+          // } else {
+          //   const index = action.findIndex(arritem => arritem === example.data);
+          //   action[index] = example.data;
+          //   actionid[index] = example.id;
+          //
+          // }
+          // console.log(action);
+          // console.log(actionid);
+          //   // action.push(example.data);
+          //   // actionid.push(example.id);
+          //   // console.log(action);
+          //   // console.log(actionid);
+          //   for (var i = 0; i < action.length; i++) {
+          //     edtprms = action[i].split(',');
+          //     console.log(edtprms);
+          //     //console.log(example.data);
+          //     edtmid = parseInt(edtprms[1]) + 1;
+          //     edtcid = parseInt(edtprms[0]);
+          //     csymbol = msgsymbol[edtprms[1]];
+          //     console.log(csymbol);
+          //     var newmid = parseInt(edtprms[1]);
+          //     //console.log('new: ' + edtcid + ',' + newmid)
+          //     GetCoin();
+          //     UpdatePrice();
+          //     bot.answerCallbackQuery(actionid[i])
+          //     .then (() => bot.editMessageCaption(details + '\n' + today, {chat_id: edtcid, message_id: edtmid, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'Update', callback_data:edtcid + "," + edtmid}]]}}));
+          //   }
+
+          //   if (msg.message_id == newmid) {
+          //
+          // } else {
+          //   //newmid = msg.message_id;
+          //   var oldmid = msg.message_id + 1;
+          //   console.log('else: ' + edtcid + ',' + newmid)
+          //   bot.answerCallbackQuery(example.id)
+          //   .then (() => bot.editMessageCaption(details + '\n' + today, {chat_id: edtcid, message_id: oldmid, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'Update', callback_data:edtcid + "," + msg.message_id}]]}}));
+          // }
+        //  })
+
+
+
+
+
+        //   edtprms = action.split(',');
+        //
+        //   edtmid = parseInt(edtprms[1]) + 1;
+        //   edtcid = parseInt(edtprms[0]);
+        //   csymbol = msgsymbol[edtprms[1]];
+        //   var newmid = parseInt(edtprms[1]);
+        //   console.log('new: ' + edtcid + ',' + newmid)
+        //   GetCoin();
+        //   UpdatePrice();
+        //   if (msg.message_id == newmid) {
+        //   console.log('match');
+        //   bot.answerCallbackQuery(example.id)
+        //
+        // } else {
+        //   console.log('mismatch');
+        //   var newmid = msg.message_id;
+        //   var oldmid = msg.message_id + 1;
+        //   console.log('else: ' + edtcid + ',' + newmid)
+        //   bot.answerCallbackQuery(example.id)
+        //   .then (() => bot.editMessageCaption(details + '\n' + today, {chat_id: edtcid, message_id: oldmid, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'Update', callback_data:msg.chat_id + "," + msg.message_id}]]}}));
+        // }
+
+
+
+
+          //WORKS
+
+          // bot.on("callback_query", (example) => {
+          //   var action = example.data;
+          //   edtprms = action.split(',');
+          //   console.log(example.data);
+          //   edtmid = parseInt(edtprms[1]) + 1;
+          //   edtcid = parseInt(edtprms[0]);
+          //   csymbol = msgsymbol[edtprms[1]];
+          //   var newmid = parseInt(edtprms[1]);
+          //   console.log('new: ' + edtcid + ',' + newmid)
+          //   GetCoin();
+          //   UpdatePrice();
+          //   if (msg.message_id == newmid) {
+          //   bot.answerCallbackQuery(example.id)
+          //   .then (() => bot.editMessageCaption(details + '\n' + today, {chat_id: edtcid, message_id: edtmid, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'Update', callback_data:edtcid + "," + newmid}]]}}));
+          // } else {
+          //   //newmid = msg.message_id;
+          //   var oldmid = msg.message_id + 1;
+          //   console.log('else: ' + edtcid + ',' + newmid)
+          //   bot.answerCallbackQuery(example.id)
+          //   .then (() => bot.editMessageCaption(details + '\n' + today, {chat_id: edtcid, message_id: oldmid, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'Update', callback_data:edtcid + "," + msg.message_id}]]}}));
+          // }
+          // })
+
+
+
+
+            // //const msg = example.message;
+            // console.log(example.message.message_id);
+            // if (example.message.message_id == (msgid + 1)) {
+            //   console.log('match');
+            //   bot.answerCallbackQuery(example.id)
+            //   .then (function(update){
+            //     //console.log(msgsymbol[example.message.message_id - 1]);
+            //     csymbol = msgsymbol[example.message.message_id - 1];
+            //     GetCoin();
+            //     UpdatePrice();
+            //     bot.editMessageCaption(details + '\n' + today, {chat_id: example.message.chat.id, message_id: example.message.message_id, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'test', callback_data: 'click'}]]}});
+            //     // cid = null;
+            //     // csymbol = null;
+            //   })
+            // } else {
+            //   bot.answerCallbackQuery(example.id)
+            //   .then (function(update){
+            //   msgid = test[1];
+            //   console.log('msgid' + test[1]);
+            //   console.log('chid' + test[0]);
+            //   csymbol = msgsymbol[test[1]];
+            //   console.log('sym' + csymbol);
+            //   GetCoin();
+            //   UpdatePrice();
+            //   bot.editMessageCaption(details + '\n' + today, {chat_id: test[0], message_id: test[1], parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'test', callback_data: 'click'}]]}});
+            // })}
+            //  var btnmsg = callbackQuery.message;
+            // console.log(callbackQuery.id);
+            //   bot.answerCallbackQuery(callbackQuery.id)
+            //       .then(function(update) {
+            //     //    console.log(lastcsymbol);
+            //         //var test = callbackQuery.message.message_id - 1;
+            //         //console.log(test);
+            //         // csymbol = msgsymbol[test];
+            //         console.log(msgsymbol[callbackQuery.message.message_id - 1]);
+            //         // GetCoin();
+            //         // UpdatePrice();
+            //         // bot.editMessageCaption(details + '\n' + today, {chat_id: callbackQuery.message.chat.id, message_id: callbackQuery.message.message_id, inline_message_id: callbackQuery.message.inline_message_id, parse_mode: 'Markdown', reply_markup: {inline_keyboard: [[{text: 'test', callback_data: 'click'}]]}});
+            //         // cid = null;
+            //         // csymbol = null;
+            //       })
+        //  });
+
+
+// //UPDATE PRICE
+//     var newcap;
+//           function UpdatePrice() {
+//           //   msgid = edtmid;
+//           // //  console.log(msgid);
+//           //   msgsymbol[msgid] = csymbol;
+//                     axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + cid +'&order=market_cap_desc&per_page=100&page=1&sparkline=false')
+//                     .then(function (response) {
+//                       cpriceobj = response.data;
+//                       available =
+//                       '*' + cpriceobj[0].name + '*' +
+//                       '\n*Rank:* #' + cpriceobj[0].market_cap_rank +
+//                       '\n*Price:* $' + nf.format(Math.round((cpriceobj[0].current_price + Number.EPSILON) * 100) / 100) +
+//                       '\n*Market Cap:* $' + nf.format(Math.round(cpriceobj[0].market_cap)) +
+//                       '\n*24h Volume:* $' + nf.format(Math.round(cpriceobj[0].total_volume)) +
+//                       '\n*24h High:* $' + nf.format(Math.round((cpriceobj[0].high_24h + Number.EPSILON) * 100) / 100) +
+//                       '\n*24h Low:* $' + nf.format(Math.round((cpriceobj[0].low_24h + Number.EPSILON) * 100) / 100) +
+//                       '\n*24h Change:* $' + nf.format(Math.round((cpriceobj[0].price_change_24h + Number.EPSILON) * 100) / 100) +
+//                       '\n*24h Change:* ' + nf.format(Math.round((cpriceobj[0].price_change_percentage_24h + Number.EPSILON) * 100) / 100) + '%' +
+//                       '\n*ATH: $*' + nf.format(Math.round((cpriceobj[0].ath + Number.EPSILON) * 100) / 100) +
+//                       '\n*ATH Difference:* ' + nf.format(Math.round((cpriceobj[0].ath_change_percentage + Number.EPSILON) * 100) / 100) + '%' +
+//                       '\n*ATL:* $' + nf.format(Math.round((cpriceobj[0].atl + Number.EPSILON) * 100) / 100) +
+//                       '\n*ATL Difference:* ' + nf.format(Math.round((cpriceobj[0].atl_change_percentage + Number.EPSILON) * 100) / 100) + '%' +
+//                       '\n*Circulating:* ' + nf.format(Math.round(cpriceobj[0].circulating_supply));
+//
+//                       if (cpriceobj[0].roi != null && cpriceobj[0].total_supply != null && cpriceobj[0].max_supply != null && cpriceobj[0].fully_diluted_valuation != null) {
+//                       missing =
+//                       '\n*Total Supply:* ' + nf.format(Math.round(cpriceobj[0].total_supply)) +
+//                       '\n*Max Supply:* ' + nf.format(Math.round(cpriceobj[0].max_supply)) +
+//                       '\n*Diluted Valuation:* $' + nf.format(Math.round(cpriceobj[0].fully_diluted_valuation)) +
+//                       '\n*ROI:* ' + nf.format(Math.round((cpriceobj[0].roi.percentage + Number.EPSILON) * 100) / 100) + '%';
+//
+//                       details = available + missing;
+//
+//                     } else if (cpriceobj[0].total_supply == null && cpriceobj[0].max_supply == null && cpriceobj[0].fully_diluted_valuation == null) {
+//                       missing =
+//                       '\n*Total Supply:* N/A' +
+//                       '\n*Max Supply:* N/A' +
+//                       '\n*Diluted Valuation:* N/A' +
+//                       '\n*ROI:* ' + nf.format(Math.round((cpriceobj[0].roi.percentage + Number.EPSILON) * 100) / 100) + '%';
+//
+//                       details = available + missing;
+//
+//                     } else if (cpriceobj[0].roi == null) {
+//                       missing =
+//                       '\n*Total Supply:* ' + nf.format(Math.round(cpriceobj[0].total_supply)) +
+//                       '\n*Max Supply:* ' + nf.format(Math.round(cpriceobj[0].max_supply)) +
+//                       '\n*Diluted Valuation:* $' + nf.format(Math.round(cpriceobj[0].fully_diluted_valuation)) +
+//                       '\n*ROI:* N/A';
+//
+//                       details = available + missing;
+//
+//                     } else if (cpriceobj[0].max_supply == null && cpriceobj[0].fully_diluted_valuation == null) {
+//                       missing =
+//                       '\n*Total Supply:* ' + nf.format(Math.round(cpriceobj[0].total_supply)) +
+//                       '\n*Max Supply:* N/A' +
+//                       '\n*Diluted Valuation:* N/A' +
+//                       '\n*ROI:* ' + nf.format(Math.round((cpriceobj[0].roi.percentage + Number.EPSILON) * 100) / 100) + '%';
+//
+//                       details = available + missing;
+//
+//                     }
+//
+//
+//                     });
+//                     newcap = details;
+//                     // cid = null;
+//                     // csymbol = null;
+//                     }
 
 
 //GET CHART
@@ -1370,7 +1751,7 @@ function GetChart(){
                   var tdval = [];
                   for (var i = 0; i < priceobj.length; i = i + timeMP) {
                     xval[i] = priceobj[i][0];
-                    yval[i] = priceobj[i][1].toFixed(8);
+                    yval[i] = priceobj[i][1];
                     mval[i] = mcapobj[i][1].toFixed(2);
                     vval[i] = volobj[i][1].toFixed(2);
                   }
@@ -1408,10 +1789,7 @@ function GetChart(){
                        data: {
                          labels: tdval,
                          datasets: [{
-                           label: ' Price: $' + Number(yval[yval.length - 1]).toLocaleString('en-US', {
-                           notation: 'compact',
-                           compactDisplay: 'short',
-                         }) + "     ",
+                           label: ' Price: $' + Number(yval[yval.length - 1]).toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'}) + "     ",
                            data: yval,
                            pointStyle: 'line',
                            borderJoinStyle: 'round',
@@ -1423,6 +1801,22 @@ function GetChart(){
                            tension: 1,
                            order: 0,
                          },{
+                         //   label: ' Mcap: $' + Number(mval[mval.length - 1]).toLocaleString('en-US', {
+                         //   notation: 'compact',
+                         //   hidden: false,
+                         //   compactDisplay: 'short',
+                         // }) + "     ",
+                         //   type: 'bar',
+                         //   data: mval,
+                         //   borderColor: 'rgba(0, 200, 0, 0.9)',
+                         //   backgroundColor: 'rgba(0, 200, 0, 0.7)',
+                         //   fill: true,
+                         //   grouped: false,
+                         //   yAxisID: 'y-axis-1',
+                         //   barThickness: 'flex',
+                         //   categoryPercentage: 1,
+                         //   barPercentage: 0.7,
+                         // },{
                            label: ' Volume: $' + Number(vval[vval.length - 1]).toLocaleString('en-US', {
                            notation: 'compact',
                            compactDisplay: 'short',
@@ -1434,6 +1828,7 @@ function GetChart(){
                            fill: true,
                            order: 1,
                            grouped: false,
+                           //minBarLength: 100,
                            yAxisID: 'y-axis-1',
                            barThickness: 'flex',
                            categoryPercentage: 1,
@@ -1647,7 +2042,9 @@ function GetChart(){
                                       avgcan[i] = (openval[i] + closeval[i]) / 2;
                                       uptick[i] = highval[i] - avgcan[i];
                                       amplitude[i] = highval[i] - lowval[i];
+                                  //    upsup[i] = highval[i] - uptick[i];
                                       bottick[i] = avgcan[i] - lowval[i];
+                                    //  botsup[i] = lowval[i] - bottick[i];
                                        absavg[i] = math.std(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]);
                                        lowavg[i] = absavg[i] - Math.min(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]);
                                        highavg[i] = Math.max(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i]) - absavg[i];
@@ -1657,8 +2054,17 @@ function GetChart(){
                                        rsiavg[i] = absavg[i] + rsi[i] * absavg[i];
                                        rsihvg[i] = rsiavg[i] + rsi[i] * highavg[i];
                                        rsilvg[i] = rsiavg[i] - rsi[i] * lowavg[i];
+                                    // console.log(rsi + ' ' + rsiavg + ' ' + rsihvg + ' ' + rsilvg);
                                        lowtick[i] = amplitude[i] + rsilvg[i]
 
+                          //              100
+                          // RSI = 100 - --------
+                          //              1 + RS
+                          //
+                          // RS = Average Gain / Average Loss
+
+                                       //console.log('avg:' + absavg[i] + 'l:' + lowavg[i] + 'h:' + highavg[i]);
+                                       //console.log(amplitude[i], uptick[i], highval[i], avgcan[i], bottick[i], lowval[i], absavg[i], lowavg[i], highavg[i]);
                                     //SET CHART CONFIG
 
                                      var myChart = new ChartJsImage();
@@ -1919,26 +2325,26 @@ function GetChart(){
                                            }],
                                            yAxes: [{
                                              ticks: {
-                                              autoSkip: true,
-                                              maxTicksLimit: 8,
-                                              callback: function(value, index, values) {
-                                                  return value.toLocaleString('en-US', {
-                                                  notation: 'compact',
-                                                  compactDisplay: 'short',
-                                                  maximumFractionDigits: 8,
-                                                })
-                                              }},
+                                               autoSkip: true,
+                                               maxTicksLimit: 8,
+                                               callback: function(value, index, values) {
+                                                   return value.toLocaleString('en-US', {
+                                                   notation: 'compact',
+                                                   compactDisplay: 'short',
+                                                   maximumFractionDigits: 8,
+                                                 })
+                                               }},
                                              id: 'y-axis-1',
                                              ticks: {
-                                              autoSkip: true,
-                                              maxTicksLimit: 8,
-                                              callback: function(value, index, values) {
-                                                  return value.toLocaleString('en-US', {
-                                                  notation: 'compact',
-                                                  compactDisplay: 'short',
-                                                  maximumFractionDigits: 8,
-                                                })
-                                              }},
+                                               autoSkip: true,
+                                               maxTicksLimit: 8,
+                                               callback: function(value, index, values) {
+                                                   return value.toLocaleString('en-US', {
+                                                   notation: 'compact',
+                                                   compactDisplay: 'short',
+                                                   maximumFractionDigits: 8,
+                                                 })
+                                               }},
                                              bounds: 'data',
                                              type: 'linear',
                                              position: 'left',
