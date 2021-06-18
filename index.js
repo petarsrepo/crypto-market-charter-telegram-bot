@@ -20,7 +20,7 @@ const bizThread = 'http://boards.4chan.org/biz/thread/';
 const bizAPI = 'https://a.4cdn.org/biz/threads.json';
 const threadAPI = 'https://a.4cdn.org/biz/thread/';
 const math = require('mathjs');
-const coverCommands = ['media/global.gif', 'media/defi.gif', 'media/help.gif', 'media/hot.gif', 'media/about.gif'];
+const coverCommands = ['media/global.gif', 'media/defi.gif', 'media/help.gif', 'media/hot.gif', 'media/about.gif', 'media/gas.gif'];
 const coverBog = ['media/bog1.gif', 'media/bog2.gif', 'media/bog3.gif', 'media/bog4.gif', 'media/bog5.gif'];
 
 //KEY TIMEFRAMES IN UNIX
@@ -84,7 +84,7 @@ async function loadCoins() {
     console.log('Coins list updated.')
     setTimeout(function(){
       loadCoins();
-    },fminute);
+    },fday);
 }
 
 //UPDATE COINS LIST
@@ -94,14 +94,25 @@ loadCoins();
 var linkmcap;
 function GetLinkCap() {
 
-axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'chainlink' +'&order=market_cap_desc&per_page=100&page=1&sparkline=false')
+axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'chainlink' +'&order=market_cap_desc&per_page=1&page=1&sparkline=false')
   .then(function (response) {
       var priceobj = response.data;
       linkmcap = priceobj[0].market_cap;
     });
 }
 
+var ethprc;
+function GetEthPrice() {
+axios.get(geckoAPI + '/coins/markets?vs_currency=usd&ids=' + 'ethereum' +'&order=market_cap_desc&per_page=1&page=1&sparkline=false')
+  .then(function (response) {
+      var priceobj = response.data;
+      ethprc = priceobj[0].current_price;
+
+    });
+}
+
 GetLinkCap();
+GetEthPrice();
 
 //START MESSAGE LISTENER
 
@@ -176,7 +187,7 @@ bot.on('message', (msg) => {
     xHrs = true;
     xHrsDays = false;
     xDays = false;
-    timeMP = 2;
+    timeMP = 3;
     cptimeframe = ': 4 Hours'
     GetCoin();
     GetChart();
@@ -633,10 +644,11 @@ if (uniMsg == "/help" || uniMsg == "/help@" + botuname) {
   bot.sendAnimation(msg.chat.id, coverCommands[2], {caption :
     "\n/i - `Get coin information e.g. /c btc`" +
     "\n/p - `Get coin market data e.g. /p ethereum`" +
-    "\n/ph | /pd | /pw | /pm | /pq | /ps | /py - `Get price & volume chart at various time scales`" +
-    "\n/id | /iw | /if | /im | /iq | /is | /iy - `Get price chart with indicators at various time scales`" +
-    "\n/top - `Get the Top 25 Coins by Marketcap`" +
+    "\n/ph | /pd | /pw | /pm | /pq | /ps | /py - `Get price & volume chart for various time`" +
+    "\n/id | /iw | /if | /im | /iq | /is | /iy - `Get price chart with indicators for various time`" +
+    "\n/top | /hmap - `Get the Top 25 Coins by Marketcap in text or chart form`" +
     "\n/hot - `Get the Top 7 Trending Coins`" +
+    "\n/gas - `Get the Gas Cost estimations`" +
     "\n/crypto - `Get global crypto market data`" +
     "\n/defi - `Get global DeFi market data`" +
     "\n/wjk - `Get key metrics about the Wojak Index`" +
@@ -850,7 +862,7 @@ for (var i = 0; i < 5; i++) {
       if (thrselect[selindex] == threadobj.posts[i].no) {
         thrsrchindex = i;
       }
-    } console.log(threadurl)
+    }
     thrimgurl = wImageUrl + threadobj.posts[thrsrchindex].tim + threadobj.posts[thrsrchindex].ext;
     bot.sendChatAction(msg.chat.id, 'typing');
     bot.sendPhoto(msg.chat.id, thrimgurl, { caption: ' * ' + '' + threadobj.posts[thrsrchindex].sub + '' + ' * ' +
@@ -909,8 +921,7 @@ if (uniMsg == "/wjk" || uniMsg == "/wjk@" + botuname) {
     }))
     };
 
-
-
+//GET CRYPTO MARKET DATA
 
 if (uniMsg == "/crypto" || uniMsg == "/crypto@" + botuname) {
 GetLinkCap();
@@ -926,6 +937,7 @@ axios.get(geckoAPI + '/global')
   var tvol = respobj.data.total_volume.usd.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
   var btcdom = respobj.data.market_cap_percentage.btc.toFixed(2);
   var linkdom = (linkmcap / respobj.data.total_market_cap.usd).toFixed(4);
+  GetLinkCap();
   bot.sendChatAction(msg.chat.id, 'typing');
   bot.sendAnimation(msg.chat.id, coverCommands[0], { caption: '*Global Market Data - Crypto:*' +
   '\n*Total Coins:* ' + totalcoins +
@@ -939,6 +951,8 @@ axios.get(geckoAPI + '/global')
   '\n*Chainlink Dominance:* ' + linkdom + '%' , parse_mode: 'Markdown'});
 });
 }
+
+//GET DEFI MARKET INFORMATION
 
 if (uniMsg == "/defi" || uniMsg == "/defi@" + botuname) {
   axios.get(geckoAPI + '/global/decentralized_finance_defi')
@@ -963,6 +977,37 @@ if (uniMsg == "/defi" || uniMsg == "/defi@" + botuname) {
   });
 }
 
+//GET GAS PRICE ESTIMATIONS
+
+if (uniMsg == "/gas" || uniMsg == "/gas@" + botuname) {
+GetEthPrice();
+      console.log(ethprc)
+axios.get('https://api.etherscan.io/api?module=gastracker&action=gasoracle&apiKey=BVRC7AN23U8Y1MK1KEC11522UMWT6BXZ2M')
+.then (function (response) {
+  var respobj = response.data;
+  console.log(response.data.result.SafeGasPrice)
+  var gsfe = 21000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var gavg = 21000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var ghgh = 21000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  var gtsfe = 65000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var gtavg = 65000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var gthgh = 65000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  var gssfe = 200000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var gsavg = 200000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var gshgh = 200000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  var glsfe = 175000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
+  var glavg = 175000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
+  var glhgh = 175000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  console.log(gsfe, gavg, ghgh, gtsfe, gtavg, gthgh, gssfe, gsavg, gshgh, glsfe, glavg, glhgh,)
+  var gstr = '*Ethereum Network Gas Fees: *' + '\n' +
+  '*Ethereum: *' + '*Low: *$' + gsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' | *Avg: *$' + gavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + ghgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
+  '*Token: *' + '*Low: *$' + gtsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + gtavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + gthgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
+  '*Swap: *' + '*Low: *$' + gssfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + gsavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + gshgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
+  '*Liquidity: *' + '*Low: *$' + glsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + glavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + glhgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2});
+  bot.sendChatAction(msg.chat.id, 'typing');
+  bot.sendAnimation(msg.chat.id, coverCommands[5], {caption: gstr, parse_mode: 'Markdown'});
+})
+}
 
 //GET TOP TRENDING COINS
 
@@ -1001,6 +1046,11 @@ bot.sendAnimation(msg.chat.id, coverCommands[3], { caption: "[Top-7 Trending Coi
 }));
 };
 
+
+
+
+
+
 //GET TOP 25 24 HOUR
 if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
   axios.get(geckoAPI + '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&sparkline=false')
@@ -1016,7 +1066,6 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
     var chg = [];
     var chgcmt;
     for (var i = 0; i < respobj.length; i++) {
-      // console.log(respobj[i]);
       smb[i] = respobj[i].symbol.toUpperCase();
       prc[i] = respobj[i].current_price.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
       prh[i] = respobj[i].high_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
@@ -1024,11 +1073,6 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
       prcc[i] = respobj[i].price_change_24h.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
       prcp[i] = respobj[i].price_change_percentage_24h.toFixed(2);
       chg[i] = respobj[i].price_change_percentage_24h;
-
-      hmsym[i] = respobj[i].symbol.toUpperCase();;
-      hmprc[i] = respobj[i].current_price;
-      hmprcp[i] = respobj[i].price_change_percentage_24h;
-
 
       toptext[i] = '*' + [1 + i] + '. ' + smb[i] + ':* $' + prc[i] + ' | H: $' + prh[i] + ' | L: $' + prl[i] + ' | 24h: $' + prcc[i] + ' / ' + prcp[i] + '%\n', { parse_mode: 'Markdown'};
 
@@ -1044,7 +1088,6 @@ if (uniMsg == "/top" || uniMsg == "/top@" + botuname) {
       };
 console.log(toptext.join(','));
 bot.sendMessage(msg.chat.id, '*Top 25 Coins by Marketcap:* \n' + toptext.join('') + '\n *Average Change: ' + avgchg + '% | ' + chgcmt + '*', {parse_mode: 'Markdown'});
-GetHMap();
 })
 
 };
@@ -1057,10 +1100,23 @@ var hmsym = [];
 var hmprc = [];
 var hmprcp = [];
 var hmcol = [];
+var hmtxt = [];
 
-function GetHMap() {
+if (uniMsg == "/hmap" || uniMsg == "/hmap@" + botuname) {
+
+  axios.get(geckoAPI + '/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&sparkline=false')
+  .then (function (response) {
+    var respobj = response.data;
+    for (var i = 0; i < respobj.length; i++) {
+      hmsym[i] = respobj[i].symbol.toUpperCase();;
+      hmprc[i] = respobj[i].current_price.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'});
+      hmprcp[i] = respobj[i].price_change_percentage_24h;
+      hmtxt[i] = '*' + hmsym[i] + ':* $' + hmprc[i], {parse_mode: 'Markdown'};
+    }
+
 var myChart = new ChartJsImage();
 for (var i = 0; i < hmprc.length; i++) {
+var hmstr = hmtxt.join(' | ');
 
 
 if (Math.sign(hmprcp[i]) == 1) {
@@ -1172,7 +1228,7 @@ myChart.setConfig({
 myChart.toFile('mychart.png');
 bot.sendChatAction(msg.chat.id, 'typing');
 setTimeout(function () {
-bot.sendPhoto(msg.chat.id, 'mychart.png');
+bot.sendPhoto(msg.chat.id, 'mychart.png', {caption: hmstr, parse_mode: 'Markdown'});
 }, 2500);
 setTimeout(function () {
   if (fs.existsSync('mychart.png')) {
@@ -1188,7 +1244,9 @@ setTimeout(function () {
 
 cid = null;
 csymbol = null;
+})
 };
+
 
 //GET COIN
 
@@ -1370,7 +1428,7 @@ function GetChart(){
                   var tdval = [];
                   for (var i = 0; i < priceobj.length; i = i + timeMP) {
                     xval[i] = priceobj[i][0];
-                    yval[i] = priceobj[i][1].toFixed(8);
+                    yval[i] = priceobj[i][1];
                     mval[i] = mcapobj[i][1].toFixed(2);
                     vval[i] = volobj[i][1].toFixed(2);
                   }
@@ -1408,10 +1466,7 @@ function GetChart(){
                        data: {
                          labels: tdval,
                          datasets: [{
-                           label: ' Price: $' + Number(yval[yval.length - 1]).toLocaleString('en-US', {
-                           notation: 'compact',
-                           compactDisplay: 'short',
-                         }) + "     ",
+                           label: ' Price: $' + Number(yval[yval.length - 1]).toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short'}) + "     ",
                            data: yval,
                            pointStyle: 'line',
                            borderJoinStyle: 'round',
@@ -1699,7 +1754,6 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 2,
                                            fill: false,
-                                           //borderDash: [4,4],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(255, 0, 0, 1)',
@@ -1716,7 +1770,6 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 2,
                                            fill: false,
-                                           //borderDash: [4,4],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(77, 5, 232, 1)',
@@ -1733,7 +1786,6 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 0,
                                            fill: '+1',
-                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(0, 0, 200, 0.1)',
@@ -1751,7 +1803,6 @@ function GetChart(){
                                            pointStyle: 'line',
                                            borderWidth: 0,
                                            fill: '-1',
-                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(0, 0, 200, 0)',
@@ -1781,7 +1832,6 @@ function GetChart(){
                                            type: 'bar',
                                            display: false,
                                            data: absavg,
-                                           //base: barval,
                                            borderWidth: 3,
                                            borderColor: 'rgba(155, 0 , 0, 0.2)',
                                            backgroundColor: 'rgba(155, 0, 0, 0.2)',
@@ -1795,12 +1845,9 @@ function GetChart(){
                                            type: 'bar',
                                            showLine: false,
                                            data:  highavg,
-                                           //base: 30,
                                            pointRadius: 3,
                                            pointStyle: 'line',
                                            borderWidth: 3,
-                                        //   fill: '-1',
-                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(155, 100, 0, 0.2)',
@@ -1815,7 +1862,6 @@ function GetChart(){
                                            type: 'bar',
                                            display: false,
                                            data: lowtick,
-                                           //base: barval,
                                            borderWidth: 3,
                                            borderColor: 'rgba(100, 155, 0, 0.2)',
                                            backgroundColor: 'rgba(100, 155, 0, 0.2)',
@@ -1829,12 +1875,9 @@ function GetChart(){
                                            type: 'bar',
                                            showLine: false,
                                            data: lowavg ,
-                                           //base: 30,
                                            pointRadius: 3,
                                            pointStyle: 'line',
                                            borderWidth: 3,
-                                          // fill: '-1',
-                                        // borderDash: [4,1],
                                            borderJoinStyle: 'round',
                                            borderCapStyle: 'cap',
                                            borderColor: 'rgba(0, 155, 0, 0.2)',
@@ -1919,26 +1962,26 @@ function GetChart(){
                                            }],
                                            yAxes: [{
                                              ticks: {
-                                              autoSkip: true,
-                                              maxTicksLimit: 8,
-                                              callback: function(value, index, values) {
-                                                  return value.toLocaleString('en-US', {
-                                                  notation: 'compact',
-                                                  compactDisplay: 'short',
-                                                  maximumFractionDigits: 8,
-                                                })
-                                              }},
+                                               autoSkip: true,
+                                               maxTicksLimit: 8,
+                                               callback: function(value, index, values) {
+                                                   return value.toLocaleString('en-US', {
+                                                   notation: 'compact',
+                                                   compactDisplay: 'short',
+                                                   maximumFractionDigits: 8,
+                                                 })
+                                               }},
                                              id: 'y-axis-1',
                                              ticks: {
-                                              autoSkip: true,
-                                              maxTicksLimit: 8,
-                                              callback: function(value, index, values) {
-                                                  return value.toLocaleString('en-US', {
-                                                  notation: 'compact',
-                                                  compactDisplay: 'short',
-                                                  maximumFractionDigits: 8,
-                                                })
-                                              }},
+                                               autoSkip: true,
+                                               maxTicksLimit: 8,
+                                               callback: function(value, index, values) {
+                                                   return value.toLocaleString('en-US', {
+                                                   notation: 'compact',
+                                                   compactDisplay: 'short',
+                                                   maximumFractionDigits: 8,
+                                                 })
+                                               }},
                                              bounds: 'data',
                                              type: 'linear',
                                              position: 'left',
