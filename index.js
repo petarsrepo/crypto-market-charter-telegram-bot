@@ -1300,12 +1300,10 @@ function GetPrice() {
             cprc = cpriceobj[0].current_price.toLocaleString('en-US', {
             notation: 'compact',
             compactDisplay: 'short',
-            maximumFractionDigits: 8,
           });
             cvol = cpriceobj[0].total_volume.toLocaleString('en-US', {
             notation: 'compact',
             compactDisplay: 'short',
-            maximumFractionDigits: 8,
           });
             chgh = cpriceobj[0].high_24h.toLocaleString('en-US', {
             notation: 'compact',
@@ -1338,7 +1336,7 @@ function GetPrice() {
             '\n*Rank:* #' + cpriceobj[0].market_cap_rank +
             '\n*Price:* $' + cprc +
             '\n*Market Cap:* $' + nf.format(Math.round(cpriceobj[0].market_cap)) +
-            '\n*24h Volume:* $' + cvol +
+            '\n*24h Volume:* $' + nf.format(Math.round(cpriceobj[0].total_volume)) +
             '\n*24h High:* $' + chgh +
             '\n*24h Low:* $' + clow +
             '\n*24h Change:* $' + cchc +
