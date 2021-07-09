@@ -180,6 +180,74 @@ bot.on('message', (msg) => {
     GetPrice();
   }
 
+  if (uniMsg.startsWith(pHrs)) {
+    csymbol = uniMsg.substr(4);
+    chartURL = '&from=' + (today - 4 * hour) + '&to=' + today;
+    xMins = true;
+    xHrs = true;
+    xHrsDays = false;
+    xDays = false;
+    timeMP = 1;
+    cptimeframe = ': 4 Hours'
+    GetCoin();
+    GetChart();
+  } else if (uniMsg == pHrs.substr(0,3)) {
+    csymbol = 'link';
+    chartURL = '&from=' + (today - 4 * hour) + '&to=' + today;
+    xMins = true;
+    xHrs = true;
+    xHrsDays = false;
+    xDays = false;
+    timeMP = 1;
+    cptimeframe = ': 4 Hours'
+    GetCoin();
+    GetChart();
+  } else if (uniMsg == pHrs.substr(0,3) + '@' + botuname) {
+    csymbol = 'link';
+    chartURL = '&from=' + (today - 4 * hour) + '&to=' + today;
+    xMins = true;
+    xHrs = true;
+    xHrsDays = false;
+    xDays = false;
+    timeMP = 1;
+    cptimeframe = ': 4 Hours'
+    GetCoin();
+    GetChart();
+  }
+
+  if (uniMsg.startsWith(pDay)) {
+    csymbol = uniMsg.substr(4);
+    chartURL = '&from=' + (today - day) + '&to=' + today;
+    xMins = false;
+    xHrs = true;
+    xHrsDays = false;
+    xDays = false;
+    timeMP = 3;
+    cptimeframe = ': 24 Hours'
+    GetCoin();
+    GetChart();
+  } else if (uniMsg == pDay.substr(0,3)) {
+    csymbol = 'link';
+    chartURL = '&from=' + (today - day) + '&to=' + today;
+    xHrs = true;
+    xHrsDays = false;
+    xDays = false;
+    timeMP = 3;
+    cptimeframe = ': 24 Hours'
+    GetCoin();
+    GetChart();
+  } else if (uniMsg == pDay.substr(0,3) + '@' + botuname) {
+    csymbol = 'link';
+    chartURL = '&from=' + (today - day) + '&to=' + today;
+    xHrs = true;
+    xHrsDays = false;
+    xDays = false;
+    timeMP = 3;
+    cptimeframe = ': 24 Hours'
+    GetCoin();
+    GetChart();
+  }
+
   if (uniMsg.startsWith(pWk)) {
     csymbol = uniMsg.substr(4);
     chartURL = '&from=' + (today - week) + '&to=' + today;
@@ -795,6 +863,7 @@ for (var i = 0; i < 5; i++) {
         thrsrchindex = i;
       }
     }
+    //var thdbdy = threadobj.posts[thrsrchindex].com.substr(0, 200);
     thrimgurl = wImageUrl + threadobj.posts[thrsrchindex].tim + threadobj.posts[thrsrchindex].ext;
     bot.sendChatAction(msg.chat.id, 'typing');
     bot.sendPhoto(msg.chat.id, thrimgurl, { caption: ' * ' + '' + threadobj.posts[thrsrchindex].sub + '' + ' * ' +
@@ -926,7 +995,11 @@ axios.get('https://api.etherscan.io/api?module=gastracker&action=gasoracle')
   var glsfe = 175000 * response.data.result.SafeGasPrice * ethprc / 1000000000;
   var glavg = 175000 * response.data.result.ProposeGasPrice * ethprc / 1000000000;
   var glhgh = 175000 * response.data.result.FastGasPrice * ethprc / 1000000000;
+  var ggsfe = response.data.result.SafeGasPrice;
+  var ggavg = response.data.result.ProposeGasPrice;
+  var gghgh = response.data.result.FastGasPrice;
   var gstr = '*Ethereum Network Gas Fees: *' + '\n' +
+  '*gWei: *' + '*Low: *' + ggsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 0}) + ' | *Avg: *' + ggavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 0}) + ' * | Fast: *' + gghgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 0}) + '\n' +
   '*Ethereum: *' + '*Low: *$' + gsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' | *Avg: *$' + gavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + ghgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
   '*Token: *' + '*Low: *$' + gtsfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + gtavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + gthgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
   '*Swap: *' + '*Low: *$' + gssfe.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Avg: *$' + gsavg.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + ' * | Fast: *$' + gshgh.toLocaleString('en-US', { notation: 'compact', compactDisplay: 'short', maximumFractionDigits: 2}) + '\n' +
