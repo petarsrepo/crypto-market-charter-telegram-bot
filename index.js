@@ -187,7 +187,7 @@ bot.on('message', (msg) => {
     xHrs = true;
     xHrsDays = false;
     xDays = false;
-    timeMP = 1;
+    timeMP = 3;
     cptimeframe = ': 4 Hours'
     GetCoin();
     GetChart();
@@ -198,7 +198,7 @@ bot.on('message', (msg) => {
     xHrs = true;
     xHrsDays = false;
     xDays = false;
-    timeMP = 1;
+    timeMP = 3;
     cptimeframe = ': 4 Hours'
     GetCoin();
     GetChart();
@@ -209,7 +209,7 @@ bot.on('message', (msg) => {
     xHrs = true;
     xHrsDays = false;
     xDays = false;
-    timeMP = 1;
+    timeMP = 3;
     cptimeframe = ': 4 Hours'
     GetCoin();
     GetChart();
@@ -1302,34 +1302,16 @@ if (cfound) {
       .then(function (response) {
         cpriceobj = response.data;
 
-        cprc = cpriceobj[0].current_price.toLocaleString('en-US', {
-        notation: 'compact',
-        compactDisplay: 'short',
-      });
+        cprc = cpriceobj[0].current_price;
         cvol = cpriceobj[0].total_volume.toLocaleString('en-US', {
         notation: 'compact',
         compactDisplay: 'short',
       });
-        chgh = cpriceobj[0].high_24h.toLocaleString('en-US', {
-        notation: 'compact',
-        compactDisplay: 'short',
-      });
-        clow = cpriceobj[0].low_24h.toLocaleString('en-US', {
-        notation: 'compact',
-        compactDisplay: 'short',
-      });
-        cchc = cpriceobj[0].price_change_24h.toLocaleString('en-US', {
-        notation: 'compact',
-        compactDisplay: 'short',
-      });
-        cath = cpriceobj[0].ath.toLocaleString('en-US', {
-        notation: 'compact',
-        compactDisplay: 'short',
-      });
-        catl = cpriceobj[0].atl.toLocaleString('en-US', {
-        notation: 'compact',
-        compactDisplay: 'short',
-      });
+        chgh = cpriceobj[0].high_24h;
+        clow = cpriceobj[0].low_24h;
+        cchc = cpriceobj[0].price_change_24h;
+        cath = cpriceobj[0].ath;
+        catl = cpriceobj[0].atl;
 
         available =
         '*' + cpriceobj[0].name + '*' +
@@ -1619,6 +1601,7 @@ function GetChart(){
                                 axios.get(geckoAPI + '/coins/' + cid + '/ohlc?vs_currency=usd&' + chartURL)
                                 .then(function (response) {
                                   var priceobj = response.data;
+                                  console.log(priceobj);
                                   var tval = [];
                                   var dval = [];
                                   var tdval = [];
