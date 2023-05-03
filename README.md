@@ -1,4 +1,4 @@
-# The Market Charter: Telegram Bot
+# The Market Charter: Telegram Bot [![using with dotenv-vault](https://badge.dotenv.org/using.svg?r=1)](https://www.dotenv.org/r/github.com/motdotla/dotenv?r=1)
  
 This is a bot that provides cryptocurrency market information and basic charting services. It also comes with built-in meme functionalities and Wojak Index integration. Candle charts coming soon...
 
